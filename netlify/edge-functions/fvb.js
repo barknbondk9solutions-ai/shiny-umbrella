@@ -161,7 +161,7 @@ function addSecurityHeaders(response) {
       "https://tiles-b.basemaps.cartocdn.com " +
       "https://tiles-c.basemaps.cartocdn.com " +
       "https://tiles-d.basemaps.cartocdn.com " +
-      "https://basemaps.cartocdn.com " +    
+      "https://basemaps.cartocdn.com " +    // <--- fixed: added basemaps domain here
       "https://calendly.com " +
       "https://maps.googleapis.com " +
       "https://maps.gstatic.com " +
@@ -183,7 +183,7 @@ function addSecurityHeaders(response) {
       "https://tiles-b.basemaps.cartocdn.com " +
       "https://tiles-c.basemaps.cartocdn.com " +
       "https://tiles-d.basemaps.cartocdn.com " +
-      "https://basemaps.cartocdn.com; " +
+      "https://basemaps.cartocdn.com; " +   // added basemaps domains here also
     "frame-src 'self' " +
       "https://www.youtube.com " +
       "https://www.youtube-nocookie.com " +
