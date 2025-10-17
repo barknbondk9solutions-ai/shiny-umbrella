@@ -134,9 +134,16 @@ response.headers.set("Content-Security-Policy",
     "https://www.googletagmanager.com " +
     "https://elfsightcdn.com " +
     "https://universe-static.elfsightcdn.com " +
-    "https://asset-tidycal.b-cdn.net " +
-    "https://unpkg.com " +
-    "https://cdn.jsdelivr.net; " +
+    "https://asset-tidycal.b-cdn.net " +   
+    "https://unpkg.com " +       
+    "https://cdn.jsdelivr.net " +
+    "https://www.youtube.com " +
+    "https://assets.calendly.com " +
+    "https://calendly.com " +
+    "https://maps.googleapis.com " +
+    "https://maps.gstatic.com " +
+    "https://www.google.com/recaptcha/ " +
+    "https://www.gstatic.com/recaptcha/; " +
   "style-src 'self' 'unsafe-inline' " +
     "https://client.crisp.chat " +
     "https://cdnjs.cloudflare.com " +
@@ -153,7 +160,12 @@ response.headers.set("Content-Security-Policy",
     "https://tiles-a.basemaps.cartocdn.com " +
     "https://tiles-b.basemaps.cartocdn.com " +
     "https://tiles-c.basemaps.cartocdn.com " +
-    "https://tiles-d.basemaps.cartocdn.com; " +
+    "https://tiles-d.basemaps.cartocdn.com " +
+    "https://calendly.com " +
+    "https://maps.googleapis.com " +
+    "https://maps.gstatic.com " +
+    "https://www.google.com " +
+    "https://www.gstatic.com; " +
   "font-src 'self' " +
     "https://client.crisp.chat " +
     "https://cdnjs.cloudflare.com " +
@@ -163,15 +175,22 @@ response.headers.set("Content-Security-Policy",
     "https://files.elfsightcdn.com " +
     "https://app.petcareins.com " +
     "https://www.propethero.com " +
-    "https://raw.githubusercontent.com; " +
-  "frame-src 'self'; " +
+    "https://raw.githubusercontent.com " +
+    "https://maps.gstatic.com; " +
+  "frame-src 'self' " +
+    "https://www.youtube.com " +
+    "https://www.youtube-nocookie.com " +
+    "https://calendly.com " +
+    "https://www.google.com/maps " +
+    "https://www.google.com/recaptcha/; " +
   "object-src 'none'; " +
   "base-uri 'self'; " +
   "manifest-src 'self'; " +
-  "media-src 'self'; " +
+  "media-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; " +
   "worker-src 'none'; " +
   "frame-ancestors 'none';"
 );
+
 
   response.headers.set("X-Robots-Tag", "index, follow");
   return response;
