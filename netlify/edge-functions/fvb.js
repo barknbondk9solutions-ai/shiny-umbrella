@@ -134,8 +134,8 @@ response.headers.set("Content-Security-Policy",
     "https://www.googletagmanager.com " +
     "https://elfsightcdn.com " +
     "https://universe-static.elfsightcdn.com " +
-    "https://asset-tidycal.b-cdn.net " +   
-    "https://unpkg.com " +       
+    "https://asset-tidycal.b-cdn.net " +        // TidyCal scripts
+    "https://unpkg.com " +                      // MapLibre GL scripts
     "https://cdn.jsdelivr.net " +
     "https://www.youtube.com " +
     "https://assets.calendly.com " +
@@ -161,11 +161,13 @@ response.headers.set("Content-Security-Policy",
     "https://tiles-b.basemaps.cartocdn.com " +
     "https://tiles-c.basemaps.cartocdn.com " +
     "https://tiles-d.basemaps.cartocdn.com " +
+    "https://basemaps.cartocdn.com " +         // Added basemaps domain for style JSON
     "https://calendly.com " +
     "https://maps.googleapis.com " +
     "https://maps.gstatic.com " +
     "https://www.google.com " +
-    "https://www.gstatic.com; " +
+    "https://www.gstatic.com " +
+    "https://unpkg.com; " +                     // For source map fetching
   "font-src 'self' " +
     "https://client.crisp.chat " +
     "https://cdnjs.cloudflare.com " +
@@ -181,15 +183,17 @@ response.headers.set("Content-Security-Policy",
     "https://www.youtube.com " +
     "https://www.youtube-nocookie.com " +
     "https://calendly.com " +
+    "https://tidycal.com " +                    // Added TidyCal iframe
     "https://www.google.com/maps " +
     "https://www.google.com/recaptcha/; " +
   "object-src 'none'; " +
   "base-uri 'self'; " +
   "manifest-src 'self'; " +
   "media-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; " +
-  "worker-src 'none'; " +
+  "worker-src 'self' blob:; " +                // Allow MapLibre GL workers
   "frame-ancestors 'none';"
 );
+
 
 
   response.headers.set("X-Robots-Tag", "index, follow");
