@@ -133,13 +133,20 @@ function addSecurityHeaders(response) {
   // ==========================
   const csp = [
     "default-src 'self';",
-    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
-    "script-src-elem 'self' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
+    // Allow your external scripts
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
+    "script-src-elem 'self' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
+    // Allow Web Workers (needed for MapLibre)
     "worker-src 'self' blob:;",
+    // Styles
     "style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net;",
+    // Images
     "img-src 'self' data: https://assets.zyrosite.com;",
+    // APIs / AJAX / fetch
     "connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com https://basemaps.cartocdn.com https://api.sunrise-sunset.org https://api.weather.gov https://client.crisp.chat;",
+    // iframes
     "frame-src https://tidycal.com https://client.crisp.chat;",
+    // Fonts
     "font-src https://fonts.gstatic.com;",
     "object-src 'none';",
     "base-uri 'self';",
