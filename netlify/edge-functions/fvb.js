@@ -123,37 +123,25 @@ export default async (request, context) => {
 // Helper: Security headers + dynamic CSP + logging
 // ==========================
 async function addSecurityHeaders(response) {
-  // Generate nonces for inline scripts/styles
+  // Generate nonces
   const scriptNonce = randomBytes(16).toString("base64");
   const styleNonce = randomBytes(16).toString("base64");
 
-  // Read HTML body
+  // Get HTML
   let html;
-  try {
-    html = await response.clone().text();
-  } catch {
-    html = "";
-  }
+  try { html = await response.clone().text(); } catch { html = ""; }
 
-  // Inject nonces into inline scripts/styles
-  html = html.replace(
-    /<script(?![^>]*src)([^>]*)>/gi,
-    `<script$1 nonce="${scriptNonce}">`
-  );
-  html = html.replace(
-    /<style([^>]*)>/gi,
-    `<style$1 nonce="${styleNonce}">`
-  );
+  // Inject nonces for inline scripts/styles
+  html = html.replace(/<script(?![^>]*src)([^>]*)>/gi, `<script$1 nonce="${scriptNonce}">`);
+  html = html.replace(/<style([^>]*)>/gi, `<style$1 nonce="${styleNonce}">`);
 
-  // Extract all URLs from src/href/srcset
+  // Extract all URLs from HTML
   const srcUrls = [];
   const urlRegex = /(?:src|href|srcset)=["']([^"']+)["']/gi;
   let match;
-  while ((match = urlRegex.exec(html)) !== null) {
-    srcUrls.push(match[1]);
-  }
+  while ((match = urlRegex.exec(html)) srcUrls.push(match[1]);
 
-  // Predefined whitelist for known dynamic services
+  // Predefined whitelist including MapLibre, CrispChat, TidyCal
   const predefined = [
     "'self'",
     "https://cdnjs.cloudflare.com",
@@ -166,24 +154,21 @@ async function addSecurityHeaders(response) {
     "https://asset-tidycal.b-cdn.net",
     "https://unpkg.com",
     "https://*.tile.openstreetmap.org",
-    "https://*.carto.com"
+    "https://*.carto.com",
+    "https://tidycal.com"
   ];
 
-  // Collect unique origins from HTML
+  // Merge with origins from HTML
   const origins = new Set(predefined);
   srcUrls.forEach(url => {
-    try {
-      const fullUrl = url.startsWith("http") ? new URL(url) : null;
-      if (fullUrl) origins.add(fullUrl.origin);
-    } catch {}
+    try { const fullUrl = url.startsWith("http") ? new URL(url) : null; if (fullUrl) origins.add(fullUrl.origin); } catch {}
   });
 
-  // Log whitelist (optional)
-  console.log("===== CSP Whitelisted Origins =====");
-  origins.forEach(origin => console.log(origin));
-  console.log("===================================");
+  console.log("===== CSP Origins =====");
+  origins.forEach(o => console.log(o));
+  console.log("=======================");
 
-  // Build dynamic CSP
+  // Build CSP
   const csp = `
     default-src 'self';
     script-src ${[...origins].join(" ")} 'nonce-${scriptNonce}' blob:;
@@ -199,10 +184,8 @@ async function addSecurityHeaders(response) {
     frame-ancestors 'none';
   `.replace(/\s+/g, " ").trim();
 
-  // Create new response with modified HTML
+  // Return new response with headers
   response = new Response(html, response);
-
-  // Set security headers
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
