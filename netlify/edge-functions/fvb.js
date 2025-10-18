@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto"; // Node.js/Deno crypto
+
 export default async (request, context) => {
   try {
     const url = new URL(request.url);
@@ -118,25 +120,84 @@ export default async (request, context) => {
 };
 
 // ==========================
-// Helper: Security headers + SEO
+// Helper: Security headers + dynamic CSP with nonce + logging
 // ==========================
-function addSecurityHeaders(response){
-  response.headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload");
-  response.headers.set("X-Frame-Options","SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options","nosniff");
-  response.headers.set("Referrer-Policy","strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy","geolocation=(), microphone=(), camera=()");
-  response.headers.set("Content-Security-Policy",
-    "default-src * data: blob: filesystem: about: ws: wss:; "+
-    "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; "+
-    "style-src * 'unsafe-inline' data: blob:; "+
-    "img-src * data: blob:; "+
-    "connect-src * data: blob:; "+
-    "frame-src * data: blob:; "+
-    "media-src * data: blob:; "+
-    "font-src * data: blob:;"
+async function addSecurityHeaders(response) {
+  // Generate nonces
+  const scriptNonce = randomBytes(16).toString("base64");
+  const styleNonce = randomBytes(16).toString("base64");
+
+  // Clone response to read HTML
+  let html;
+  try {
+    html = await response.clone().text();
+  } catch {
+    html = "";
+  }
+
+  // Inject nonce into all inline scripts and styles
+  html = html.replace(
+    /<script(?![^>]*src)([^>]*)>/gi,
+    `<script$1 nonce="${scriptNonce}">`
+  );
+  html = html.replace(
+    /<style([^>]*)>/gi,
+    `<style$1 nonce="${styleNonce}">`
   );
 
+  // Extract all external URLs from src/href/srcset
+  const srcUrls = [];
+  const urlRegex = /(?:src|href|srcset)=["']([^"']+)["']/gi;
+  let match;
+  while ((match = urlRegex.exec(html)) !== null) {
+    srcUrls.push(match[1]);
+  }
+
+  // Collect unique origins
+  const origins = new Set();
+  srcUrls.forEach(url => {
+    try {
+      const fullUrl = url.startsWith("http") ? new URL(url) : null;
+      if (fullUrl) origins.add(fullUrl.origin);
+    } catch {}
+  });
+  origins.add("'self'");
+
+  // Log whitelisted origins
+  console.log("===== CSP Whitelisted Origins =====");
+  origins.forEach(origin => console.log(origin));
+  console.log("===================================");
+
+  // Build dynamic CSP
+  const csp = `
+    default-src ${[...origins].join(" ")};
+    script-src ${[...origins].join(" ")} 'nonce-${scriptNonce}';
+    style-src ${[...origins].join(" ")} 'nonce-${styleNonce}';
+    img-src ${[...origins].join(" ")} data:;
+    font-src ${[...origins].join(" ")};
+    connect-src ${[...origins].join(" ")};
+    frame-src ${[...origins].join(" ")};
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+  `.replace(/\s+/g, " ").trim();
+
+  // Create new response with modified HTML
+  response = new Response(html, response);
+
+  // Set security headers
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
   response.headers.set("X-Robots-Tag", "index, follow");
+  response.headers.set("Content-Security-Policy", csp);
+
+  // Optional: attach nonce headers for client-side reference
+  response.headers.set("Content-Security-Policy-Nonce-Script", scriptNonce);
+  response.headers.set("Content-Security-Policy-Nonce-Style", styleNonce);
+
   return response;
 }
