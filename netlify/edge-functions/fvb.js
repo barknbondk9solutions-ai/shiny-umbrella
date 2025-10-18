@@ -125,60 +125,61 @@ function addSecurityHeaders(response) {
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
   response.headers.set("X-Robots-Tag", "index, follow");
 
   // ==========================
-  // Whitelist of external scripts & styles
+  // Whitelisted origins
   // ==========================
-  const externalScripts = [
-    "https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH",
-    "https://asset-tidycal.b-cdn.net/js/embed.js",
-    "https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"
+  const scriptOrigins = [
+    "'self'",
+    "https://www.googletagmanager.com",
+    "https://asset-tidycal.b-cdn.net",
+    "https://unpkg.com",
+    "https://client.crisp.chat",
+    "https://www.google.com" // for reCAPTCHA
   ];
 
-  const externalStyles = [
-    "https://unpkg.com/maplibre-gl/dist/maplibre-gl.css",
-    "https://assets.zyrosite.com/style.min.css",
-    "https://assets.zyrosite.com/banner-style.min.css",
+  const styleOrigins = [
+    "'self'",
     "https://unpkg.com",
     "https://fonts.googleapis.com",
-    "https://asset-tidycal.b-cdn.net"
+    "https://asset-tidycal.b-cdn.net",
+    "https://assets.zyrosite.com"
   ];
 
-  const externalConnect = [
+  const connectOrigins = [
+    "'self'",
     "https://asset-tidycal.b-cdn.net",
     "https://www.googletagmanager.com",
     "https://www.google-analytics.com",
     "https://basemaps.cartocdn.com",
+    "https://tiles.basemaps.cartocdn.com",
     "https://api.sunrise-sunset.org",
     "https://api.weather.gov",
     "https://client.crisp.chat"
   ];
 
-  const externalFrames = [
+  const frameOrigins = [
     "https://tidycal.com",
     "https://client.crisp.chat"
   ];
 
-  // ==========================
-  // Build Content Security Policy dynamically
-  // ==========================
   const csp = [
-    "default-src 'self';",
-    `script-src 'self' ${externalScripts.join(" ")};`,
-    `script-src-elem 'self' ${externalScripts.join(" ")};`,
-    "worker-src 'self' blob:;",
-    `style-src 'self' 'unsafe-inline' ${externalStyles.join(" ")};`,
-    "img-src 'self' data: https://assets.zyrosite.com;",
-    `connect-src 'self' ${externalConnect.join(" ")};`,
-    `frame-src ${externalFrames.join(" ")};`,
-    "font-src https://fonts.gstatic.com;",
-    "object-src 'none';",
-    "base-uri 'self';",
-    "form-action 'self';",
-    "frame-ancestors 'self';",
-    "upgrade-insecure-requests;"
+    `default-src 'self';`,
+    `script-src ${scriptOrigins.join(" ")};`,
+    `script-src-elem ${scriptOrigins.join(" ")};`,
+    `worker-src 'self' blob:;`,
+    `style-src 'self' 'unsafe-inline' ${styleOrigins.join(" ")};`,
+    `img-src 'self' data: https://assets.zyrosite.com;`,
+    `connect-src ${connectOrigins.join(" ")};`,
+    `frame-src ${frameOrigins.join(" ")};`,
+    `font-src https://fonts.gstatic.com;`,
+    `object-src 'none';`,
+    `base-uri 'self';`,
+    `form-action 'self';`,
+    `frame-ancestors 'self';`,
+    `upgrade-insecure-requests;`
   ].join(" ");
 
   response.headers.set("Content-Security-Policy", csp);
