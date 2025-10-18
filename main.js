@@ -38,6 +38,7 @@ loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function()
   
   // Wait for DOM to ensure map container exists
   document.addEventListener("DOMContentLoaded", function () {
+    // Initialize MapLibre map
     if (document.getElementById('map')) {
       const map = new maplibregl.Map({
         container: 'map',
@@ -45,6 +46,12 @@ loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function()
         center: [-80.2995, 25.82],
         zoom: 10
       });
+    }
+
+    // Attach ZIP code check handler (CSP-compliant)
+    const zipBtn = document.getElementById('check-coverage');
+    if (zipBtn && typeof checkCoverage === 'function') {
+      zipBtn.addEventListener('click', checkCoverage);
     }
   });
 
