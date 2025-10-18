@@ -159,17 +159,17 @@ async function addSecurityHeaders(response) {
     );
   }
 
-// For styles, allow unsafe-inline but remove nonce
-response.headers.set("Content-Security-Policy",
-  `default-src * data: blob: filesystem: about: ws: wss:; ` +
-  `script-src * 'unsafe-inline' 'nonce-${scriptNonce}' 'unsafe-eval' data: blob:; ` +
-  `style-src * 'unsafe-inline' data: blob:; ` +
-  `img-src * data: blob:; ` +
-  `connect-src * data: blob:; ` +
-  `frame-src * data: blob:; ` +
-  `media-src * data: blob:; ` +
-  `font-src * data: blob:;`
-);
+  // CSP: allow unsafe-inline for third-party dynamic styles, include nonces for your inline scripts
+  response.headers.set("Content-Security-Policy",
+    `default-src * data: blob: filesystem: about: ws: wss:; ` +
+    `script-src * 'unsafe-inline' 'nonce-${scriptNonce}' 'unsafe-eval' data: blob:; ` +
+    `style-src * 'unsafe-inline' data: blob:; ` +
+    `img-src * data: blob:; ` +
+    `connect-src * data: blob:; ` +
+    `frame-src * data: blob:; ` +
+    `media-src * data: blob:; ` +
+    `font-src * data: blob:;`
+  );
 
   response.headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options","SAMEORIGIN");
@@ -179,7 +179,7 @@ response.headers.set("Content-Security-Policy",
   response.headers.set("X-Robots-Tag", "index, follow");
 
   if (html) {
-    // Return modified HTML
+    // Return modified HTML with injected nonces
     return new Response(html, response);
   }
 
