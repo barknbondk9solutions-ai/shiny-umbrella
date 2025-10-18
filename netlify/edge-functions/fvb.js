@@ -26,38 +26,38 @@ function addSecurityHeaders(response) {
     "https://asset-tidycal.b-cdn.net",
     "https://assets.zyrosite.com",
     "https://client.crisp.chat",
-    "https://basemaps.cartocdn.com" 
+    "https://basemaps.cartocdn.com"
   ];
 
-  const FRAME_WHITELIST = [
-    "https://tidycal.com",
-    "https://*.tidycal.com",
-    "https://client.crisp.chat",
-    "https://www.google.com"
-  ];
+const FRAME_WHITELIST = [
+  "https://tidycal.com",
+  "https://*.tidycal.com",
+  "https://client.crisp.chat",
+  "https://www.google.com"
+];
 
-  const CONNECT_WHITELIST = [
-    "'self'",
-    "https://asset-tidycal.b-cdn.net",
-    "https://www.googletagmanager.com",
-    "https://www.google-analytics.com",
-    "https://basemaps.cartocdn.com",
-    "https://tiles.basemaps.cartocdn.com",
-    "https://tiles-a.basemaps.cartocdn.com",
-    "https://tiles-b.basemaps.cartocdn.com",
-    "https://tiles-c.basemaps.cartocdn.com",
-    "https://tiles-d.basemaps.cartocdn.com",
-    "https://nominatim.openstreetmap.org", 
-    "https://api.sunrise-sunset.org",
-    "https://api.weather.gov",
-    "https://client.crisp.chat",
-    "https://www.gstatic.com",
-    "https://www.google.com",
-    "https://unpkg.com",
-    "https://unpkg.com/maplibre-gl/dist/",
-    "https://*.tidycal.com",
-    "wss://client.relay.crisp.chat"
-  ];
+const CONNECT_WHITELIST = [
+  "'self'",
+  "https://asset-tidycal.b-cdn.net",
+  "https://www.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://basemaps.cartocdn.com",
+  "https://tiles.basemaps.cartocdn.com",
+  "https://tiles-a.basemaps.cartocdn.com",
+  "https://tiles-b.basemaps.cartocdn.com",
+  "https://tiles-c.basemaps.cartocdn.com",
+  "https://tiles-d.basemaps.cartocdn.com",
+  "https://nominatim.openstreetmap.org",
+  "https://api.sunrise-sunset.org",
+  "https://api.weather.gov",
+  "https://client.crisp.chat",
+  "https://www.gstatic.com",
+  "https://www.google.com",
+  "https://unpkg.com",
+  "https://unpkg.com/maplibre-gl/dist/",
+  "https://*.tidycal.com",
+  "wss://client.relay.crisp.chat"
+];
 
   const FONT_WHITELIST = [
     "https://fonts.gstatic.com",
@@ -65,23 +65,23 @@ function addSecurityHeaders(response) {
   ];
 
   // Construct CSP
-  const csp = [
-    "default-src 'self';",
-    `script-src ${SCRIPT_WHITELIST.join(" ")};`,
-    `script-src-elem ${SCRIPT_WHITELIST.join(" ")};`,
-    "worker-src 'self' blob:;",
-    `style-src ${STYLE_WHITELIST.join(" ")};`,
-    `style-src-elem ${STYLE_WHITELIST.join(" ")};`,
-    "img-src 'self' data: https://assets.zyrosite.com https://client.crisp.chat https://image.crisp.chat;",
-    `connect-src ${CONNECT_WHITELIST.join(" ")};`,
-    `frame-src ${FRAME_WHITELIST.join(" ")};`,
-    `font-src ${FONT_WHITELIST.join(" ")};`,
-    "object-src 'none';",
-    "base-uri 'self';",
-    "form-action 'self';",
-    "frame-ancestors 'self';",
-    "upgrade-insecure-requests;"
-  ].join(" ");
+const csp = [
+  "default-src 'self';",
+  `script-src ${SCRIPT_WHITELIST.join(" ")};`,
+  `script-src-elem ${SCRIPT_WHITELIST.join(" ")};`,
+  "worker-src 'self' blob:;",
+  `style-src ${STYLE_WHITELIST.join(" ")};`,
+  `style-src-elem ${STYLE_WHITELIST.join(" ")};`,
+  "img-src 'self' data: https://assets.zyrosite.com https://client.crisp.chat https://image.crisp.chat;",
+  `connect-src ${CONNECT_WHITELIST.join(" ")};`,
+  `frame-src ${FRAME_WHITELIST.join(" ")};`,
+  `font-src ${FONT_WHITELIST.join(" ")};`,
+  "object-src 'none';",
+  "base-uri 'self';",
+  "form-action 'self';",
+  "frame-ancestors 'self';",
+  "upgrade-insecure-requests;"
+].join(" ");
 
   response.headers.set("Content-Security-Policy", csp);
   return response;
