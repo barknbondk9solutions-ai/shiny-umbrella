@@ -176,6 +176,9 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(updateStatus,60000);
 
   // Bind ZIP coverage button
-  const zipBtn = document.getElementById("check-coverage");
-  if (zipBtn) zipBtn.addEventListener("click", checkCoverage);
-});
+function checkCoverage() {
+  console.log("Button clicked!");
+  const zip = document.getElementById("zipInput").value.trim();
+  console.log("ZIP entered:", zip);
+  document.getElementById("result").innerText = "Button works!";
+}
