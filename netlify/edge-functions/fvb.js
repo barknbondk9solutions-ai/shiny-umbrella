@@ -120,14 +120,12 @@ export default async (request, context) => {
 };
 
 // ==========================
-// Helper: Security headers + dynamic CSP with nonce + logging
+// Helper: Security headers + dynamic CSP + subdomain whitelist
 // ==========================
 async function addSecurityHeaders(response) {
-  // Generate nonces
   const scriptNonce = randomBytes(16).toString("base64");
   const styleNonce = randomBytes(16).toString("base64");
 
-  // Clone response to read HTML
   let html;
   try {
     html = await response.clone().text();
@@ -135,15 +133,9 @@ async function addSecurityHeaders(response) {
     html = "";
   }
 
-  // Inject nonce into all inline scripts and styles
-  html = html.replace(
-    /<script(?![^>]*src)([^>]*)>/gi,
-    `<script$1 nonce="${scriptNonce}">`
-  );
-  html = html.replace(
-    /<style([^>]*)>/gi,
-    `<style$1 nonce="${styleNonce}">`
-  );
+  // Inject nonce into inline scripts/styles
+  html = html.replace(/<script(?![^>]*src)([^>]*)>/gi, `<script$1 nonce="${scriptNonce}">`);
+  html = html.replace(/<style([^>]*)>/gi, `<style$1 nonce="${styleNonce}">`);
 
   // Extract all external URLs from src/href/srcset
   const srcUrls = [];
@@ -161,9 +153,22 @@ async function addSecurityHeaders(response) {
       if (fullUrl) origins.add(fullUrl.origin);
     } catch {}
   });
+
+  // Automatically whitelist your main domain + subdomains
+  const myDomains = [
+    "https://barknbondk9solutions.com",
+    "https://www.barknbondk9solutions.com",
+    "https://about.barknbondk9solutions.com",
+    "https://services.barknbondk9solutions.com",
+    "https://resources.barknbondk9solutions.com",
+    "https://progress-portal.barknbondk9solutions.com",
+    "https://team.barknbondk9solutions.com",
+    "https://contact.barknbondk9solutions.com",
+    "https://legal.barknbondk9solutions.com"
+  ];
+  myDomains.forEach(d => origins.add(d));
   origins.add("'self'");
 
-  // Log whitelisted origins
   console.log("===== CSP Whitelisted Origins =====");
   origins.forEach(origin => console.log(origin));
   console.log("===================================");
@@ -183,10 +188,9 @@ async function addSecurityHeaders(response) {
     frame-ancestors 'none';
   `.replace(/\s+/g, " ").trim();
 
-  // Create new response with modified HTML
   response = new Response(html, response);
 
-  // Set security headers
+  // Set headers
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -195,7 +199,6 @@ async function addSecurityHeaders(response) {
   response.headers.set("X-Robots-Tag", "index, follow");
   response.headers.set("Content-Security-Policy", csp);
 
-  // Optional: attach nonce headers for client-side reference
   response.headers.set("Content-Security-Policy-Nonce-Script", scriptNonce);
   response.headers.set("Content-Security-Policy-Nonce-Style", styleNonce);
 
