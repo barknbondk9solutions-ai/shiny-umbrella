@@ -31,29 +31,7 @@ loadScript("https://client.crisp.chat/l.js");
 // ======================
 loadScript("https://asset-tidycal.b-cdn.net/js/embed.js");
 
-// ======================
-// MapLibre GL JS + dependent scripts
-// ======================
-loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function () {
-  document.addEventListener("DOMContentLoaded", function () {
 
-    // Initialize map if element exists
-    const mapContainer = document.getElementById('map');
-    if (mapContainer) {
-      const map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-        center: [-80.2995, 25.82],
-        zoom: 10
-      });
-    }
-
-    // Safely attach ZIP code check event
-    const zipBtn = document.getElementById('check-coverage');
-    if (zipBtn && typeof checkCoverage === 'function') {
-      zipBtn.addEventListener('click', checkCoverage);
-    }
-  });
 
   // Load local dependent scripts
   loadScript('script.obf.js');
