@@ -1,15 +1,3 @@
-import { randomBytes } from "crypto"; // Node.js/Deno crypto
-
-// ---------------------------
-// Helper: generate base64 nonce
-// ---------------------------
-function makeNonce(len = 16) {
-  return randomBytes(len).toString("base64");
-}
-
-// ==========================
-// Main Edge Function
-// ==========================
 export default async (request, context) => {
   try {
     const url = new URL(request.url);
@@ -130,52 +118,18 @@ export default async (request, context) => {
 };
 
 // ==========================
-// Helper: Security headers + crypto nonces
+// Helper: Security headers + SEO
 // ==========================
-async function addSecurityHeaders(response){
-  const scriptNonce = makeNonce();
-  const styleNonce = makeNonce();
-
-  // Try to read HTML if available
-  let html;
-  try {
-    html = await response.clone().text();
-  } catch {
-    html = "";
-  }
-
-  // Inject nonce into inline <script> tags
-  if (html) {
-    html = html.replace(
-      /<script((?:(?!\b(src|nonce)\b)[\s\S])*?)>([\s\S]*?)<\/script>/gi,
-      (m, attrPart, body) => {
-        if (/\b(src|nonce)\b/i.test(attrPart)) return m;
-        return `<script${attrPart} nonce="${scriptNonce}">${body}</script>`;
-      }
-    );
-
-    // Inject nonce into <style> tags
-    html = html.replace(
-      /<style((?:(?!\bnonce\b)[\s\S])*?)>([\s\S]*?)<\/style>/gi,
-      (m, attrPart, body) => {
-        if (/\bnonce\b/i.test(attrPart)) return m;
-        return `<style${attrPart} nonce="${styleNonce}">${body}</style>`;
-      }
-    );
-
-    return new Response(html, response);
-  }
-
+function addSecurityHeaders(response){
   response.headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options","SAMEORIGIN");
   response.headers.set("X-Content-Type-Options","nosniff");
   response.headers.set("Referrer-Policy","strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy","geolocation=(), microphone=(), camera=()");
-
   response.headers.set("Content-Security-Policy",
     "default-src * data: blob: filesystem: about: ws: wss:; "+
-    `script-src * 'unsafe-inline' 'nonce-${scriptNonce}' 'unsafe-eval' data: blob:; `+
-    `style-src * 'unsafe-inline' 'nonce-${styleNonce}' data: blob:; `+
+    "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; "+
+    "style-src * 'unsafe-inline' data: blob:; "+
     "img-src * data: blob:; "+
     "connect-src * data: blob:; "+
     "frame-src * data: blob:; "+
