@@ -133,6 +133,7 @@ function addSecurityHeaders(response) {
   // ==========================
   const SCRIPT_WHITELIST = [
     "'self'",
+    "'unsafe-inline'",
     "https://www.googletagmanager.com",
     "https://asset-tidycal.b-cdn.net",
     "https://unpkg.com",
