@@ -160,20 +160,23 @@ async function addSecurityHeaders(response) {
   // ==========================
   // Allows all inline scripts, async/defer scripts, and your external services
   response.headers.set(
-    "Content-Security-Policy",
-    `default-src 'self'; ` +
-    `script-src 'self' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://www.google-analytics.com 'unsafe-inline'; ` +
-    `style-src 'self' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net 'unsafe-inline'; ` +
-    `img-src 'self' data: https://assets.zyrosite.com; ` +
-    `connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com; ` +
-    `frame-src https://tidycal.com; ` +
-    `font-src https://fonts.gstatic.com; ` +
-    `object-src 'none'; ` +
-    `base-uri 'self'; ` +
-    `form-action 'self'; ` +
-    `frame-ancestors 'self'; ` +
-    `upgrade-insecure-requests;`
-  );
+response.headers.set(
+  "Content-Security-Policy",
+  `default-src 'self'; ` +
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/ https://client.crisp.chat/l.js; ` +
+  `script-src-elem 'self' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/; ` +
+  `worker-src 'self' blob:; ` +
+  `style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net; ` +
+  `img-src 'self' data: https://assets.zyrosite.com https://www.google-analytics.com; ` +
+  `connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com https://basemaps.cartocdn.com https://api.sunrise-sunset.org https://api.weather.gov https://client.crisp.chat; ` +
+  `frame-src https://tidycal.com https://client.crisp.chat; ` +
+  `font-src https://fonts.gstatic.com; ` +
+  `object-src 'none'; ` +
+  `base-uri 'self'; ` +
+  `form-action 'self'; ` +
+  `frame-ancestors 'self'; ` +
+  `upgrade-insecure-requests;`
+);
 
   return response;
 }
