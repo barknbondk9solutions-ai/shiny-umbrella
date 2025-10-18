@@ -16,9 +16,9 @@ export default async (request, context) => {
     // SEO BOT WHITELIST
     // ==========================
     const seoBots = [
-      "googlebot", "bingbot", "slurp", "duckduckbot",
-      "baiduspider", "yandex", "facebookexternalhit", "twitterbot",
-      "linkedinbot", "semrushbot", "ahrefsbot"
+      "googlebot","bingbot","slurp","duckduckbot",
+      "baiduspider","yandex","facebookexternalhit","twitterbot",
+      "linkedinbot","semrushbot","ahrefsbot"
     ];
 
     if (seoBots.some(bot => userAgent.includes(bot))) {
@@ -27,7 +27,7 @@ export default async (request, context) => {
     }
 
     // ==========================
-    // VPNAPI.io GEO + VPN CHECK
+    // VPN/GEO CHECK
     // ==========================
     let addVpnHeader = false;
     let blockAccess = false;
@@ -118,6 +118,7 @@ export default async (request, context) => {
     return addSecurityHeaders(response);
   }
 };
+
 
 // ==========================
 // Helper: Security headers + dynamic CSP + logging
