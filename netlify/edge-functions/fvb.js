@@ -1,8 +1,5 @@
-import { randomBytes } from "crypto";
+import { randomBytes } from "crypto"; // Node.js/Deno crypto
 
-function generateNonce(length = 16) {
-  return randomBytes(length).toString("base64");
-}
 export default async (request, context) => {
   try {
     const url = new URL(request.url);
@@ -19,9 +16,9 @@ export default async (request, context) => {
     // SEO BOT WHITELIST
     // ==========================
     const seoBots = [
-      "googlebot","bingbot","slurp","duckduckbot",
-      "baiduspider","yandex","facebookexternalhit","twitterbot",
-      "linkedinbot","semrushbot","ahrefsbot"
+      "googlebot", "bingbot", "slurp", "duckduckbot",
+      "baiduspider", "yandex", "facebookexternalhit", "twitterbot",
+      "linkedinbot", "semrushbot", "ahrefsbot"
     ];
 
     if (seoBots.some(bot => userAgent.includes(bot))) {
@@ -30,7 +27,7 @@ export default async (request, context) => {
     }
 
     // ==========================
-    // VPN/GEO CHECK
+    // VPNAPI.io GEO + VPN CHECK
     // ==========================
     let addVpnHeader = false;
     let blockAccess = false;
@@ -122,14 +119,13 @@ export default async (request, context) => {
   }
 };
 
-
 // ==========================
 // Helper: Security headers + dynamic CSP + logging
 // ==========================
 async function addSecurityHeaders(response) {
   // Generate nonces
-const scriptNonce = generateNonce();
-const styleNonce = generateNonce();
+  const scriptNonce = randomBytes(16).toString("base64");
+  const styleNonce = randomBytes(16).toString("base64");
 
   // Get HTML
   let html;
