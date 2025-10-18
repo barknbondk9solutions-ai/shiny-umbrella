@@ -36,7 +36,7 @@ export default async (request, context) => {
     }
 
     // ==========================
-    // VPNAPI.io GEO + VPN CHECK (unchanged)
+    // VPNAPI.io GEO + VPN CHECK
     // ==========================
     let addVpnHeader = false;
     let blockAccess = false;
@@ -94,12 +94,12 @@ export default async (request, context) => {
       });
     }
 
-    // Block if flagged by geo logic
+    // Block if flagged
     if (blockAccess) {
       return addSecurityHeaders(new Response("Access Denied: Non-US or High-Risk Network", { status: 403 }));
     }
 
-    // Let the request proceed and then secure the response
+    // Continue request
     const response = await context.next();
     if (addVpnHeader) response.headers.set("X-VPN-Warning", "true");
     if (showCaptcha) response.headers.set("X-Show-Captcha", "true");
@@ -113,115 +113,104 @@ export default async (request, context) => {
 };
 
 // ==========================
-// Helper: Security headers + strict nonce CSP
+// Helper: Security headers + strict auto CSP
 // ==========================
 async function addSecurityHeaders(response) {
-  // Create nonces per-request
   const scriptNonce = makeNonce();
   const styleNonce = makeNonce();
 
-  // Clone and read HTML content (if available)
   let html = "";
   try {
     html = await response.clone().text();
-  } catch {
-    // Non-HTML response (skip nonce injection)
-  }
+  } catch {}
 
-  // Inject nonces into inline <script> and <style> tags
-  if (html) {
-    html = html.replace(
-      /<script((?:(?!\b(src|nonce)\b)[\s\S])*?)>([\s\S]*?)<\/script>/gi,
-      (m, attrPart, body) => {
-        if (/\b(src|nonce)\b/i.test(attrPart)) return m;
-        return `<script${attrPart} nonce="${scriptNonce}">${body}</script>`;
-      }
-    );
+  // ✅ Auto-detect all resource URLs (script, link, img, iframe)
+  const extractOrigins = (regex) => {
+    const urls = [...html.matchAll(regex)].map((m) => m[1]);
+    return urls
+      .map((url) => {
+        try {
+          return new URL(url).origin;
+        } catch {
+          return null;
+        }
+      })
+      .filter((o) => o);
+  };
 
-    html = html.replace(
-      /<style((?:(?!\bnonce\b)[\s\S])*?)>([\s\S]*?)<\/style>/gi,
-      (m, attrPart, body) => {
-        if (/\bnonce\b/i.test(attrPart)) return m;
-        return `<style${attrPart} nonce="${styleNonce}">${body}</style>`;
-      }
-    );
-  }
+  const scripts = extractOrigins(/<script[^>]+src=["']([^"']+)["']/gi);
+  const styles = extractOrigins(/<link[^>]+href=["']([^"']+)["']/gi);
+  const frames = extractOrigins(/<iframe[^>]+src=["']([^"']+)["']/gi);
+  const imgs = extractOrigins(/<img[^>]+src=["']([^"']+)["']/gi);
 
-  // Extract src/href/srcset URLs to build whitelist
-  const srcUrls = [];
-  const urlRegex = /(?:src|href|srcset)=["']([^"']+)["']/gi;
-  let match;
-  while ((match = urlRegex.exec(html)) !== null) srcUrls.push(match[1]);
-
-  // Predefined trusted origins
   const predefined = [
     "'self'",
-    "https://cdnjs.cloudflare.com",
-    "https://cdn.jsdelivr.net",
-    "https://unpkg.com",
-    "https://www.google-analytics.com",
-    "https://www.googletagmanager.com",
-    "https://fonts.googleapis.com",
-    "https://fonts.gstatic.com",
     "https://client.crisp.chat",
     "https://crisp.chat",
-    "https://asset-tidycal.b-cdn.net",
     "https://tidycal.com",
-    "https://basemaps.cartocdn.com",
+    "https://asset-tidycal.b-cdn.net",
+    "https://cdn.jsdelivr.net",
+    "https://cdnjs.cloudflare.com",
+    "https://unpkg.com",
+    "https://fonts.googleapis.com",
+    "https://fonts.gstatic.com",
+    "https://www.google.com",
+    "https://www.gstatic.com",
+    "https://www.googletagmanager.com",
+    "https://www.google-analytics.com",
     "https://api.maptiler.com",
     "https://api.mapbox.com",
-    "https://maps.geoapify.com",
-    "https://carto.com",
-    "https://*.tile.openstreetmap.org",
-    "https://*.carto.com",
-    "https://api.weather.gov",
-    "https://api.sunrise-sunset.org",
-    "https://www.google.com",
-    "https://www.gstatic.com"
+    "https://basemaps.cartocdn.com",
+    "https://tile.openstreetmap.org",
   ];
 
-  const origins = new Set(predefined);
-  srcUrls.forEach(u => {
-    try {
-      if (u.startsWith("http")) origins.add(new URL(u).origin);
-    } catch {}
+  const origins = new Set([...predefined, ...scripts, ...styles, ...frames, ...imgs]);
+
+  // 🧠 Debug logging for Netlify
+  console.log("======== Detected CSP Origins ========");
+  console.log("Scripts:", scripts);
+  console.log("Styles:", styles);
+  console.log("Frames:", frames);
+  console.log("Images:", imgs);
+  console.log("✅ Final whitelist:", Array.from(origins));
+  console.log("======================================");
+
+  // Inject nonces
+  const updatedHTML = html
+    .replace(/<script(?![^>]*src)/gi, `<script nonce="${scriptNonce}"`)
+    .replace(/<style/gi, `<style nonce="${styleNonce}"`);
+
+  // Build strict CSP dynamically
+  const originList = Array.from(origins).join(" ");
+  const csp = `
+    default-src 'self';
+    script-src ${originList} 'nonce-${scriptNonce}' blob:;
+    style-src ${originList} 'nonce-${styleNonce}' 'unsafe-inline';
+    img-src 'self' data: blob: ${originList};
+    font-src 'self' ${originList};
+    connect-src 'self' ${originList};
+    frame-src 'self' ${originList};
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `.replace(/\s+/g, " ").trim();
+
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", csp);
+  headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("X-XSS-Protection", "1; mode=block");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
+  headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+  headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("Cross-Origin-Resource-Policy", "same-origin");
+
+  return new Response(updatedHTML || await response.text(), {
+    status: response.status,
+    headers,
   });
-
-  console.log("===== CSP Origins =====");
-  origins.forEach(o => console.log(o));
-  console.log("=======================");
-
-  // Build strict CSP
-  const csp = [
-    "default-src 'self';",
-    `script-src 'self' 'nonce-${scriptNonce}' blob: https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://maps.geoapify.com https://carto.com https://api.maptiler.com https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com;`,
-    `style-src 'self' 'nonce-${styleNonce}' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://basemaps.cartocdn.com https://carto.com;`,
-    `img-src 'self' data: blob: https://client.crisp.chat https://crisp.chat https://cdn.jsdelivr.net https://unpkg.com https://tidycal.com https://asset-tidycal.b-cdn.net https://carto.com https://basemaps.cartocdn.com https://*.tile.openstreetmap.org https://*.carto.com https://maps.geoapify.com https://api.maptiler.com;`,
-    `connect-src 'self' https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://carto.com https://basemaps.cartocdn.com https://*.tile.openstreetmap.org https://maps.geoapify.com https://api.maptiler.com https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com;`,
-    "font-src 'self' https://fonts.gstatic.com;",
-    "frame-src 'self' https://tidycal.com https://client.crisp.chat https://crisp.chat;",
-    "object-src 'none';",
-    "base-uri 'self';",
-    "form-action 'self';",
-    "frame-ancestors 'none';",
-    "upgrade-insecure-requests;",
-  ].join(" ");
-
-  // Recreate a new response if HTML was modified
-  const securedResponse = html
-    ? new Response(html, response)
-    : new Response(await response.arrayBuffer(), response);
-
-  // Set headers
-  securedResponse.headers.set("Content-Security-Policy", csp);
-  securedResponse.headers.set("X-Content-Type-Options", "nosniff");
-  securedResponse.headers.set("X-Frame-Options", "DENY");
-  securedResponse.headers.set("X-XSS-Protection", "1; mode=block");
-  securedResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  securedResponse.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
-  securedResponse.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-  securedResponse.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  securedResponse.headers.set("Cross-Origin-Resource-Policy", "same-origin");
-
-  return securedResponse;
 }
