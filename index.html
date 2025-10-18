@@ -63,27 +63,7 @@
   <link rel="stylesheet" href="banner-style.min.css" />
   <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-6YDTVFLPLH');
-  </script>
-
-  <!-- Crisp Chat -->
-  <script type="text/javascript">
-    window.$crisp = [];
-    window.CRISP_WEBSITE_ID = "3414fd4a-ab39-440d-a142-8cf19be43ed1";
-    (function () {
-      const d = document;
-      const s = d.createElement("script");
-      s.src = "https://client.crisp.chat/l.js";
-      s.async = 1;
-      d.getElementsByTagName("head")[0].appendChild(s);
-    })();
-  </script>
+  
 </head>
 <body>
 
@@ -147,10 +127,7 @@
       </div> 
     </div> 
 
-    <!-- TidyCal Embed -->
-    <div class="tidycal-embed" data-path="barknbondk9solutions/15-minute-meeting-m825nx2"></div>
-    <script src="https://asset-tidycal.b-cdn.net/js/embed.js" async></script>
-  </div> 
+ <div class="tidycal-embed" data-path="barknbondk9solutions/15-minute-meeting-m825nx2"></div>
 
 </main>
 
@@ -171,17 +148,15 @@
   </div>
 </footer>
 
-
-
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH"></script>
+<script src="https://asset-tidycal.b-cdn.net/js/embed.js" async></script>
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"defer></script>
 <script src="script.obf.js"defer></script>
 <script src="ui-widgets.js"defer></script>
 <script src="banner.obf.js"defer></script>
 <script src="/recap-loader.js"defer></script>
-<script>
-  
-  document.getElementById('current-year').textContent = new Date().getFullYear();
-</script>
+<script src="main.js" defer></script>
+
 
 </body>
 </html>
