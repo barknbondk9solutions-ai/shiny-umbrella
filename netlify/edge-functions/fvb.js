@@ -130,12 +130,9 @@ export default async (request, context) => {
 };
 
 // ==========================
-// Helper: Security headers + auto-nonce injection
+// Helper: Security headers
 // ==========================
 async function addSecurityHeaders(response) {
-  const scriptNonce = makeNonce();
-  const styleNonce = makeNonce();
-
   // Try to read HTML if available
   let html;
   try {
@@ -145,27 +142,6 @@ async function addSecurityHeaders(response) {
   }
 
   if (html) {
-    // Replace placeholder __NONCE__ in HTML
-    html = html.replace(/nonce="__NONCE__"/g, `nonce="${scriptNonce}"`);
-
-    // Inject nonce into inline <script> tags
-    html = html.replace(
-      /<script((?:(?!\b(src|nonce)\b)[\s\S])*?)>([\s\S]*?)<\/script>/gi,
-      (m, attrPart, body) => {
-        if (/\b(src|nonce)\b/i.test(attrPart)) return m;
-        return `<script${attrPart} nonce="${scriptNonce}">${body}</script>`;
-      }
-    );
-
-    // Inject nonce into inline <style> tags
-    html = html.replace(
-      /<style((?:(?!\bnonce\b)[\s\S])*?)>([\s\S]*?)<\/style>/gi,
-      (m, attrPart, body) => {
-        if (/\bnonce\b/i.test(attrPart)) return m;
-        return `<style${attrPart} nonce="${styleNonce}">${body}</style>`;
-      }
-    );
-
     response = new Response(html, response);
   }
 
@@ -180,13 +156,14 @@ async function addSecurityHeaders(response) {
   response.headers.set("X-Robots-Tag", "index, follow");
 
   // ==========================
-  // Content-Security-Policy (allow async + defer)
+  // Content-Security-Policy
   // ==========================
+  // Allows all inline scripts, async/defer scripts, and your external services
   response.headers.set(
     "Content-Security-Policy",
     `default-src 'self'; ` +
-    `script-src 'self' 'nonce-${scriptNonce}' 'unsafe-inline' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://www.google-analytics.com; ` +
-    `style-src 'self' 'nonce-${styleNonce}' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net; ` +
+    `script-src 'self' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://www.google-analytics.com 'unsafe-inline'; ` +
+    `style-src 'self' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net 'unsafe-inline'; ` +
     `img-src 'self' data: https://assets.zyrosite.com; ` +
     `connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com; ` +
     `frame-src https://tidycal.com; ` +
