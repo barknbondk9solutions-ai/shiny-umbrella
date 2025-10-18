@@ -1,15 +1,3 @@
-import { randomBytes } from "crypto"; // Node.js / Deno crypto
-
-// ---------------------------
-// Helper: generate base64 nonce
-// ---------------------------
-function makeNonce(len = 16) {
-  return randomBytes(len).toString("base64");
-}
-
-// ==========================
-// Main Edge Function
-// ==========================
 export default async (request, context) => {
   try {
     const url = new URL(request.url);
@@ -130,46 +118,25 @@ export default async (request, context) => {
 };
 
 // ==========================
-// Helper: Security headers
+// Helper: Security headers + SEO
 // ==========================
-async function addSecurityHeaders(response) {
-  let html;
-  try {
-    html = await response.clone().text();
-  } catch {
-    html = "";
-  }
-
-  if (html) {
-    response = new Response(html, response);
-  }
-
-  // Standard security headers
-  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
-  response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-  response.headers.set("X-Robots-Tag", "index, follow");
-
-  // Content Security Policy allowing your HTML and scripts
-  response.headers.set(
-    "Content-Security-Policy",
-    `default-src 'self'; ` +
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/; ` +
-    `script-src-elem 'self' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/; ` +
-    `worker-src 'self' blob:; ` +
-    `style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net; ` +
-    `img-src 'self' data: https://assets.zyrosite.com; ` +
-    `connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com https://basemaps.cartocdn.com https://api.sunrise-sunset.org https://api.weather.gov https://client.crisp.chat; ` +
-    `frame-src https://tidycal.com https://client.crisp.chat; ` +
-    `font-src https://fonts.gstatic.com; ` +
-    `object-src 'none'; ` +
-    `base-uri 'self'; ` +
-    `form-action 'self'; ` +
-    `frame-ancestors 'self'; ` +
-    `upgrade-insecure-requests;`
+function addSecurityHeaders(response){
+  response.headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload");
+  response.headers.set("X-Frame-Options","SAMEORIGIN");
+  response.headers.set("X-Content-Type-Options","nosniff");
+  response.headers.set("Referrer-Policy","strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy","geolocation=(), microphone=(), camera=()");
+  response.headers.set("Content-Security-Policy",
+    "default-src * data: blob: filesystem: about: ws: wss:; "+
+    "script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; "+
+    "style-src * 'unsafe-inline' data: blob:; "+
+    "img-src * data: blob:; "+
+    "connect-src * data: blob:; "+
+    "frame-src * data: blob:; "+
+    "media-src * data: blob:; "+
+    "font-src * data: blob:;"
   );
 
+  response.headers.set("X-Robots-Tag", "index, follow");
   return response;
 }
