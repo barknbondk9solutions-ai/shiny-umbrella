@@ -35,31 +35,29 @@ loadScript("https://asset-tidycal.b-cdn.net/js/embed.js");
 // MapLibre GL JS + dependent scripts
 // ======================
 loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function () {
-  document.addEventListener("DOMContentLoaded", function () {
+  // Initialize map if element exists
+  const mapContainer = document.getElementById('map');
+  if (mapContainer && typeof maplibregl !== 'undefined') {
+    // Use global map variable instead of const
+    map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+      center: [-80.2995, 25.82],
+      zoom: 10
+    });
+  }
 
-    // Initialize map if element exists
-    const mapContainer = document.getElementById('map');
-    if (mapContainer) {
-      const map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-        center: [-80.2995, 25.82],
-        zoom: 10
-      });
-    }
+  // Safely attach ZIP code check event
+  const zipBtn = document.getElementById('check-coverage');
+  if (zipBtn && typeof checkCoverage === 'function') {
+    zipBtn.addEventListener('click', checkCoverage);
+  }
 
-    // Safely attach ZIP code check event
-    const zipBtn = document.getElementById('check-coverage');
-    if (zipBtn && typeof checkCoverage === 'function') {
-      zipBtn.addEventListener('click', checkCoverage);
-    }
-  });
-
-  // Load local dependent scripts
-  loadScript('script.obf.js');
-  loadScript('ui-widgets.js');
-  loadScript('banner.obf.js');
-  loadScript('/recap-loader.js');
+  // Load local dependent scripts after MapLibre is ready
+  loadScript('script.obf.js');
+  loadScript('ui-widgets.js');
+  loadScript('banner.obf.js');
+  loadScript('/recap-loader.js');
 });
 
 // ======================
