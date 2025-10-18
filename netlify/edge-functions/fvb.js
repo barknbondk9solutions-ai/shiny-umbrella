@@ -145,19 +145,19 @@ async function addSecurityHeaders(response) {
   }
 
   if (html) {
-    // Replace placeholder __NONCE__ in your HTML scripts
+    // Replace placeholder __NONCE__ in HTML
     html = html.replace(/nonce="__NONCE__"/g, `nonce="${scriptNonce}"`);
 
     // Inject nonce into inline <script> tags
     html = html.replace(
       /<script((?:(?!\b(src|nonce)\b)[\s\S])*?)>([\s\S]*?)<\/script>/gi,
       (m, attrPart, body) => {
-        if (/\b(src|nonce)\b/i.test(attrPart)) return m; // skip external scripts
+        if (/\b(src|nonce)\b/i.test(attrPart)) return m;
         return `<script${attrPart} nonce="${scriptNonce}">${body}</script>`;
       }
     );
 
-    // Inject nonce into <style> tags
+    // Inject nonce into inline <style> tags
     html = html.replace(
       /<style((?:(?!\bnonce\b)[\s\S])*?)>([\s\S]*?)<\/style>/gi,
       (m, attrPart, body) => {
@@ -166,12 +166,11 @@ async function addSecurityHeaders(response) {
       }
     );
 
-    // Return modified HTML with nonce-injected inline scripts/styles
     response = new Response(html, response);
   }
 
   // ==========================
-  // Set security headers
+  // Standard Security Headers
   // ==========================
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
@@ -181,13 +180,13 @@ async function addSecurityHeaders(response) {
   response.headers.set("X-Robots-Tag", "index, follow");
 
   // ==========================
-  // Content-Security-Policy
+  // Content-Security-Policy (Netlify-friendly)
   // ==========================
   response.headers.set(
     "Content-Security-Policy",
     `default-src 'self'; ` +
-    `script-src 'self' 'nonce-${scriptNonce}' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://www.google-analytics.com; ` +
-    `style-src 'self' 'nonce-${styleNonce}' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net; ` +
+    `script-src 'self' 'nonce-${scriptNonce}' 'unsafe-inline' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://www.google-analytics.com; ` +
+    `style-src 'self' 'nonce-${styleNonce}' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net; ` +
     `img-src 'self' data: https://assets.zyrosite.com; ` +
     `connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com; ` +
     `frame-src https://tidycal.com; ` +
@@ -195,7 +194,7 @@ async function addSecurityHeaders(response) {
     `object-src 'none'; ` +
     `base-uri 'self'; ` +
     `form-action 'self'; ` +
-    `frame-ancestors 'none'; ` +
+    `frame-ancestors 'self'; ` +
     `upgrade-insecure-requests;`
   );
 
