@@ -183,7 +183,8 @@ async function addSecurityHeaders(response) {
   // ==========================
   // Content-Security-Policy
   // ==========================
-  response.headers.set("Content-Security-Policy",
+  response.headers.set(
+    "Content-Security-Policy",
     `default-src 'self'; ` +
     `script-src 'self' 'nonce-${scriptNonce}' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://www.google-analytics.com; ` +
     `style-src 'self' 'nonce-${styleNonce}' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net; ` +
@@ -199,3 +200,4 @@ async function addSecurityHeaders(response) {
   );
 
   return response;
+}
