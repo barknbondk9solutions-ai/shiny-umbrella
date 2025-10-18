@@ -1,4 +1,6 @@
+// ======================
 // Helper to dynamically load scripts
+// ======================
 function loadScript(url, async = true, callback) {
   const script = document.createElement('script');
   script.src = url;
@@ -7,31 +9,10 @@ function loadScript(url, async = true, callback) {
   document.head.appendChild(script);
 }
 
-// Load local scripts
-loadScript('script.obf.js', true);
-loadScript('ui-widgets.js', true);
-loadScript('banner.obf.js', true);
-loadScript('/recap-loader.js', true);
-
-// Your other dynamic scripts (GA, Crisp, MapLibre) remain in main.js as well
-
-// ======================
-// Helper function to dynamically load scripts
-// ======================
-function loadExternalScript(url, async = true, callback) {
-  const script = document.createElement('script');
-  script.src = url;
-  script.async = async;
-  if (callback) {
-    script.onload = callback;
-  }
-  document.head.appendChild(script);
-}
-
 // ======================
 // Google Analytics
 // ======================
-loadExternalScript("https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH", true, function() {
+loadScript("https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH", true, function() {
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   gtag('js', new Date());
@@ -43,21 +24,19 @@ loadExternalScript("https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH", t
 // ======================
 window.$crisp = [];
 window.CRISP_WEBSITE_ID = "3414fd4a-ab39-440d-a142-8cf19be43ed1";
-loadExternalScript("https://client.crisp.chat/l.js", true);
+loadScript("https://client.crisp.chat/l.js");
 
 // ======================
 // TidyCal Embed
 // ======================
-loadExternalScript(
-  "https://asset-tidycal.b-cdn.net/js/embed.js",
-  true
-);
+loadScript("https://asset-tidycal.b-cdn.net/js/embed.js");
 
 // ======================
-// MapLibre
+// MapLibre GL JS + dependent scripts
 // ======================
-loadExternalScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function() {
-  // Make sure DOM is ready
+loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function() {
+  
+  // Wait for DOM to ensure map container exists
   document.addEventListener("DOMContentLoaded", function () {
     if (document.getElementById('map')) {
       const map = new maplibregl.Map({
@@ -68,6 +47,12 @@ loadExternalScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, fu
       });
     }
   });
+
+  // Load your local scripts that might depend on MapLibre
+  loadScript('script.obf.js');
+  loadScript('ui-widgets.js');
+  loadScript('banner.obf.js');
+  loadScript('/recap-loader.js');
 });
 
 // ======================
