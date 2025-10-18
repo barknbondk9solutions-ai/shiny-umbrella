@@ -147,30 +147,34 @@ function addSecurityHeaders(response) {
     "https://client.crisp.chat"
   ];
 
-  const CONNECT_WHITELIST = [
-    "'self'",
-    "https://asset-tidycal.b-cdn.net",
-    "https://www.googletagmanager.com",
-    "https://www.google-analytics.com",
-    "https://basemaps.cartocdn.com",
-    "https://tiles.basemaps.cartocdn.com",
-    "https://tiles-a.basemaps.cartocdn.com",
-    "https://tiles-b.basemaps.cartocdn.com",
-    "https://tiles-c.basemaps.cartocdn.com",
-    "https://tiles-d.basemaps.cartocdn.com",
-    "https://api.sunrise-sunset.org",
-    "https://api.weather.gov",
-    "https://client.crisp.chat",
-    "https://www.gstatic.com",
-    "https://www.google.com",
-    "wss://client.relay.crisp.chat"
-  ];
+const FRAME_WHITELIST = [
+  "https://tidycal.com",
+  "https://*.tidycal.com",
+  "https://client.crisp.chat",
+  "https://www.google.com"
+];
 
-  const FRAME_WHITELIST = [
-    "https://tidycal.com",
-    "https://client.crisp.chat",
-    "https://www.google.com"
-  ];
+const CONNECT_WHITELIST = [
+  "'self'",
+  "https://asset-tidycal.b-cdn.net",
+  "https://www.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://basemaps.cartocdn.com",
+  "https://tiles.basemaps.cartocdn.com",
+  "https://tiles-a.basemaps.cartocdn.com",
+  "https://tiles-b.basemaps.cartocdn.com",
+  "https://tiles-c.basemaps.cartocdn.com",
+  "https://tiles-d.basemaps.cartocdn.com",
+  "https://api.sunrise-sunset.org",
+  "https://api.weather.gov",
+  "https://client.crisp.chat",
+  "https://www.gstatic.com",
+  "https://www.google.com",
+  "https://unpkg.com",
+  "https://unpkg.com/maplibre-gl/dist/",
+  "https://*.tidycal.com",
+  "wss://client.relay.crisp.chat"
+];
 
   const FONT_WHITELIST = [
     "https://fonts.gstatic.com",
