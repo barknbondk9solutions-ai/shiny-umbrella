@@ -1,72 +1,42 @@
-// ======================
-// Service ZIP Codes
-// ======================
-const serviceZips = new Set([
-  "33010","33012","33013","33014","33015","33016","33018","33030",
-  "33031","33032","33033","33034","33035","33039","33101","33109",
-  "33122","33125","33126","33127","33128","33129","33130","33131",
-  "33132","33133","33134","33135","33136","33137","33138","33139",
-  "33140","33141","33142","33143","33144","33145","33146","33147",
-  "33149","33150","33151","33152","33153","33154","33155","33156",
-  "33157","33158","33159","33160","33161","33162","33163","33164",
-  "33165","33166","33167","33168","33169","33170","33172","33173",
-  "33174","33175","33176","33177","33178","33179","33180","33181",
-  "33182","33183","33184","33185","33186","33187","33189","33190",
-  "33193","33194","33196"
-]);
+// Miami-Dade ZIP codes you cover
+const serviceZips = [
+  "33010", "33012", "33013", "33014", "33015", "33016", "33018", "33030", 
+  "33031", "33032", "33033", "33034", "33035", "33039", "33101", "33109", 
+  "33122", "33125", "33126", "33127", "33128", "33129", "33130", "33131", 
+  "33132", "33133", "33134", "33135", "33136", "33137", "33138", "33139", 
+  "33140", "33141", "33142", "33143", "33144", "33145", "33146", "33147", 
+  "33149", "33150", "33151", "33152", "33153", "33154", "33155", "33156", 
+  "33157", "33158", "33159", "33160", "33161", "33162", "33163", "33164", 
+  "33165", "33166", "33167", "33168", "33169", "33170", "33172", "33173", 
+  "33174", "33175", "33176", "33177", "33178", "33179", "33180", "33181", 
+  "33182", "33183", "33184", "33185", "33186", "33187", "33189", "33190", 
+  "33193", "33194", "33196"
+];
 
-// ======================
-// Global Variables
-// ======================
-let map = null;
 let currentMarker = null;
 
-// ======================
-// Initialize Map
-// ======================
-function initMap() {
-  const container = document.getElementById('map');
-  if (!container || typeof maplibregl === 'undefined') return;
+// Initialize map
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  center: [-80.25, 25.76], // Miami
+  zoom: 10
+});
 
-  map = new maplibregl.Map({
-    container: 'map',
-    style: 'https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-    center: [-80.25, 25.76],
-    zoom: 10
-  });
-}
-
-// Retry map initialization until MapLibre loads
-function waitForMapLib() {
-  if (typeof maplibregl !== 'undefined') {
-    initMap();
-  } else {
-    const interval = setInterval(() => {
-      if (typeof maplibregl !== 'undefined') {
-        clearInterval(interval);
-        initMap();
-      }
-    }, 50);
-  }
-}
-
-// ======================
-// ZIP Code Coverage
-// ======================
+// Check if ZIP is covered and place marker
 function checkCoverage() {
-  const zip = document.getElementById("zipInput")?.value.trim();
+  const zip = document.getElementById("zipInput").value.trim();
   const resultEl = document.getElementById("result");
-  if (!zip || !resultEl) return;
 
   if (currentMarker) currentMarker.remove();
 
-  if (serviceZips.has(zip)) {
-    resultEl.innerHTML = `✅ We cover ZIP ${zip}! Schedule your free consultation below.`;
+  if (serviceZips.includes(zip)) {
+    resultEl.innerHTML = `✅ Looks like we’ve got your area covered in ${zip}. Let’s get started! Pick a time below to claim your free consultation call.`;
 
     fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`)
       .then(res => res.json())
       .then(data => {
-        if (data.length && map) {
+        if (data.length > 0) {
           const { lat, lon } = data[0];
           currentMarker = new maplibregl.Marker()
             .setLngLat([parseFloat(lon), parseFloat(lat)])
@@ -77,16 +47,14 @@ function checkCoverage() {
           map.flyTo({ center: [parseFloat(lon), parseFloat(lat)], zoom: 13 });
         }
       })
-      .catch(err => console.error("ZIP fetch error:", zip, err));
-
+      .catch(err => console.error("Error fetching ZIP coordinates:", zip, err));
   } else {
-    resultEl.innerHTML = `❌ Sorry, we don’t cover ZIP ${zip} yet.`;
+    resultEl.innerHTML = `❌ Sorry, we don’t cover ${zip} yet.`;
   }
 }
 
-// ======================
-// Time & Holidays
-// ======================
+// Time and hours of operation logic
+
 function getEasternTime() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
 }
@@ -105,102 +73,118 @@ function getNthWeekday(year, month, weekday, n) {
 
 function getLastWeekday(year, month, weekday) {
   let date = new Date(year, month + 1, 0);
-  while (date.getDay() !== weekday) date.setDate(date.getDate() - 1);
+  while (date.getDay() !== weekday) {
+    date.setDate(date.getDate() - 1);
+  }
   return date;
 }
 
 function applyObserved(date) {
-  const obs = new Date(date);
-  if (obs.getDay() === 6) obs.setDate(obs.getDate() - 1);
-  if (obs.getDay() === 0) obs.setDate(obs.getDate() + 1);
-  return obs;
+  const observed = new Date(date);
+  if (observed.getDay() === 6) observed.setDate(observed.getDate() - 1);
+  else if (observed.getDay() === 0) observed.setDate(observed.getDate() + 1);
+  return observed;
 }
 
 function getFederalHolidays(year) {
   const holidays = [];
-  const add = (date, name, observed=true) => {
-    holidays.push({ date: date.toDateString(), name });
-    if (observed) {
-      const obs = applyObserved(date);
-      if (obs.toDateString() !== date.toDateString())
-        holidays.push({ date: obs.toDateString(), name: name + " (Observed)" });
-    }
-  };
 
-  add(new Date(year,0,1),"New Year's Day");
-  add(getNthWeekday(year,0,1,3),"Martin Luther King Jr. Day", false);
-  add(getNthWeekday(year,1,1,3),"Presidents Day", false);
-  add(getLastWeekday(year,4,1),"Memorial Day", false);
-  add(new Date(year,5,19),"Juneteenth National Independence Day");
-  add(new Date(year,6,4),"Independence Day");
-  add(getNthWeekday(year,8,1,1),"Labor Day", false);
-  add(getNthWeekday(year,9,1,2),"Columbus Day", false);
-  add(new Date(year,10,11),"Veterans Day");
-  add(getNthWeekday(year,10,4,4),"Thanksgiving Day", false);
-  add(new Date(year,11,25),"Christmas Day");
+  function addHoliday(date, name, allowObserved = true) {
+    holidays.push({ date: date.toDateString(), name });
+    if (allowObserved) {
+      const observed = applyObserved(date);
+      if (observed.toDateString() !== date.toDateString()) {
+        holidays.push({ date: observed.toDateString(), name: name + " (Observed)" });
+      }
+    }
+  }
+
+  addHoliday(new Date(year, 0, 1), "New Year's Day");
+  addHoliday(getNthWeekday(year, 0, 1, 3), "Martin Luther King Jr. Day", false);
+  addHoliday(getNthWeekday(year, 1, 1, 3), "Presidents Day", false);
+  addHoliday(getLastWeekday(year, 4, 1), "Memorial Day", false);
+  addHoliday(new Date(year, 5, 19), "Juneteenth National Independence Day");
+  addHoliday(new Date(year, 6, 4), "Independence Day");
+  addHoliday(getNthWeekday(year, 8, 1, 1), "Labor Day", false);
+  addHoliday(getNthWeekday(year, 9, 1, 2), "Columbus Day", false);
+  addHoliday(new Date(year, 10, 11), "Veterans Day");
+  addHoliday(getNthWeekday(year, 10, 4, 4), "Thanksgiving Day", false);
+  addHoliday(new Date(year, 11, 25), "Christmas Day");
 
   return holidays;
 }
 
-// ======================
-// Business Hours
-// ======================
 const schedule = {
-  1:{openHour:8,openMinute:0,closeHour:17,closeMinute:0},
-  2:{openHour:8,openMinute:0,closeHour:17,closeMinute:0},
-  3:{openHour:8,openMinute:0,closeHour:17,closeMinute:0},
-  4:{openHour:8,openMinute:0,closeHour:17,closeMinute:0},
-  5:{openHour:8,openMinute:0,closeHour:17,closeMinute:0},
-  6:{openHour:8,openMinute:0,closeHour:12,closeMinute:0}
+  1: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Mon
+  2: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Tue
+  3: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Wed
+  4: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Thu
+  5: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Fri
+  6: { openHour: 8, openMinute: 0, closeHour: 12, closeMinute: 0 }  // Sat
 };
 
 function formatTime(hour24, minute) {
-  const h = hour24 % 12 || 12;
-  const m = minute.toString().padStart(2,'0');
-  return `${h}:${m} ${hour24>=12?'PM':'AM'}`;
+  const period = hour24 >= 12 ? "PM" : "AM";
+  const hour = hour24 % 12 || 12;
+  const paddedMin = minute.toString().padStart(2, "0");
+  return `${hour}:${paddedMin} ${period}`;
 }
 
 function getTodayStatus() {
   const now = getEasternTime();
   const day = now.getDay();
-  const holidays = getFederalHolidays(now.getFullYear());
-  const holiday = holidays.find(h=>h.date===now.toDateString());
+  const year = now.getFullYear();
+  const holidays = getFederalHolidays(year);
+  const holiday = holidays.find(h => h.date === now.toDateString());
 
-  if (holiday) return `We are closed today for ${holiday.name}.`;
-  if (day===0) return `We are closed today (Sunday). We'll reopen Monday at ${formatTime(schedule[1].openHour,schedule[1].openMinute)}.`;
+  if (holiday) {
+    return `We are closed today for ${holiday.name}.`;
+  }
+
+  if (day === 0) {
+    // Sunday
+    const nextOpenDay = schedule[1]; // Next Monday
+    const nextOpenTime = formatTime(nextOpenDay.openHour, nextOpenDay.openMinute);
+    return `We are closed today (Sunday). We'll be back on Monday at ${nextOpenTime}.`;
+  }
 
   const hours = schedule[day];
   if (!hours) return `We are closed today.`;
 
-  const nowMinutes = now.getHours()*60 + now.getMinutes();
-  const openMinutes = hours.openHour*60 + hours.openMinute;
-  const closeMinutes = hours.closeHour*60 + hours.closeMinute;
+  const openTime = formatTime(hours.openHour, hours.openMinute);
+  const closeTime = formatTime(hours.closeHour, hours.closeMinute);
 
-  if (nowMinutes>=openMinutes && nowMinutes<closeMinutes) {
-    if (nowMinutes>=closeMinutes-30) return `We're closing soon. We close at ${formatTime(hours.closeHour,hours.closeMinute)}.`;
-    return `We are open! We close at ${formatTime(hours.closeHour,hours.closeMinute)}.`;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const openMinutes = hours.openHour * 60 + hours.openMinute;
+  const closeMinutes = hours.closeHour * 60 + hours.closeMinute;
+
+  if (nowMinutes >= openMinutes && nowMinutes < closeMinutes) {
+    if (nowMinutes >= closeMinutes - 30) {
+      return `We're closing soon. We close at ${closeTime}.`;
+    }
+    return `We are open! We close at ${closeTime}.`;
   } else {
-    const nextDay = schedule[day===6?1:day+1];
-    return `We are currently closed. We will reopen at ${formatTime(nextDay.openHour,nextDay.openMinute)}.`;
+    // Business is closed
+    const nextOpenDay = schedule[day === 6 ? 1 : day + 1];
+    const nextOpenTime = formatTime(nextOpenDay.openHour, nextOpenDay.openMinute);
+    return `We are currently closed. We will reopen at ${nextOpenTime}.`;
   }
 }
 
 function updateStatus() {
-  const el = document.getElementById("status-message");
-  if (el) el.innerText = getTodayStatus();
+  const status = getTodayStatus();
+  document.getElementById("status-message").innerText = status;
 }
 
-// ======================
-// DOM Ready
-// ======================
+// Initial update and then every minute
+updateStatus();
+setInterval(updateStatus, 60000);
+
+// Attach ZIP coverage check button safely under CSP
 document.addEventListener("DOMContentLoaded", () => {
-  updateStatus();
-  setInterval(updateStatus, 60000);
-
-  // ZIP button
-  const btn = document.getElementById('check-coverage');
-  if (btn) btn.addEventListener('click', checkCoverage);
-
-  // Map
-  waitForMapLib();
+  const zipButton = document.getElementById("check-coverage");
+  if (zipButton) {
+    zipButton.removeAttribute("onclick"); // remove any inline onclick to prevent double-call
+    zipButton.addEventListener("click", checkCoverage); // bind properly
+  }
 });
