@@ -173,16 +173,24 @@ async function addSecurityHeaders(response){
   response.headers.set("X-Content-Type-Options","nosniff");
   response.headers.set("Referrer-Policy","strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy","geolocation=(), microphone=(), camera=()");
-  
+
+  // ==========================
+  // Content Security Policy
+  // ==========================
   response.headers.set("Content-Security-Policy",
-    `default-src * data: blob: filesystem: about: ws: wss:; ` +
-    `script-src * 'nonce-${scriptNonce}' 'unsafe-eval' data: blob:; ` +
-    `style-src * 'nonce-${styleNonce}' data: blob:; ` +
-    `img-src * data: blob:; ` +
-    `connect-src * data: blob:; ` +
-    `frame-src * data: blob:; ` +
-    `media-src * data: blob:; ` +
-    `font-src * data: blob:;`
+    `default-src 'self'; ` +
+    `script-src 'self' 'nonce-${scriptNonce}' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://client.crisp.chat https://unpkg.com https://maps.geoapify.com https://api.maptiler.com https://api.mapbox.com https://www.gstatic.com; ` +
+    `style-src 'self' 'nonce-${styleNonce}' https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com https://asset-tidycal.b-cdn.net; ` +
+    `img-src 'self' data: blob: https://assets.zyrosite.com https://basemaps.cartocdn.com https://*.tile.openstreetmap.org https://*.carto.com https://client.crisp.chat; ` +
+    `connect-src 'self' https://client.crisp.chat https://tiles-a.basemaps.cartocdn.com https://tiles-b.basemaps.cartocdn.com https://tiles-c.basemaps.cartocdn.com https://tiles-d.basemaps.cartocdn.com https://tiles.basemaps.cartocdn.com https://api.maptiler.com https://api.mapbox.com https://maps.geoapify.com https://www.google-analytics.com https://www.googletagmanager.com; ` +
+    `worker-src 'self' blob:; ` +
+    `font-src 'self' https://fonts.gstatic.com; ` +
+    `frame-src 'self' https://tidycal.com https://asset-tidycal.b-cdn.net; ` +
+    `object-src 'none'; ` +
+    `base-uri 'self'; ` +
+    `form-action 'self'; ` +
+    `frame-ancestors 'none'; ` +
+    `upgrade-insecure-requests;`
   );
 
   response.headers.set("X-Robots-Tag", "index, follow");
