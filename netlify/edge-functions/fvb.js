@@ -139,7 +139,7 @@ async function addSecurityHeaders(response) {
   const srcUrls = [];
   const urlRegex = /(?:src|href|srcset)=["']([^"']+)["']/gi;
   let match;
-  while ((match = urlRegex.exec(html)) srcUrls.push(match[1]);
+  while ((match = urlRegex.exec(html))) srcUrls.push(match[1]);
 
   // Predefined whitelist including MapLibre, CrispChat, TidyCal
   const predefined = [
