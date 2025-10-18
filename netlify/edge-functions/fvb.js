@@ -1,5 +1,15 @@
 import { randomBytes } from "crypto"; // Node.js/Deno crypto
 
+// ---------------------------
+// Helper: generate base64 nonce
+// ---------------------------
+function makeNonce(len = 16) {
+  return randomBytes(len).toString("base64");
+}
+
+// ==========================
+// Main Edge Function
+// ==========================
 export default async (request, context) => {
   try {
     const url = new URL(request.url);
@@ -16,22 +26,21 @@ export default async (request, context) => {
     // SEO BOT WHITELIST
     // ==========================
     const seoBots = [
-      "googlebot", "bingbot", "slurp", "duckduckbot",
-      "baiduspider", "yandex", "facebookexternalhit", "twitterbot",
-      "linkedinbot", "semrushbot", "ahrefsbot"
+      "googlebot","bingbot","slurp","duckduckbot",
+      "baiduspider","yandex","facebookexternalhit","twitterbot",
+      "linkedinbot","semrushbot","ahrefsbot"
     ];
-
     if (seoBots.some(bot => userAgent.includes(bot))) {
       const seoResponse = await context.next();
       return addSecurityHeaders(seoResponse);
     }
 
     // ==========================
-    // VPNAPI.io GEO + VPN CHECK
+    // VPNAPI.io GEO + VPN CHECK (unchanged)
     // ==========================
     let addVpnHeader = false;
     let blockAccess = false;
-    const CAPTCHA_PROBABILITY = 0.2; // 20% chance
+    const CAPTCHA_PROBABILITY = 0.2;
     let showCaptcha = false;
     let debugData = { clientIP, detected: false, note: "" };
 
@@ -39,16 +48,14 @@ export default async (request, context) => {
       const apiKey = Deno.env.get("VPNAPI_KEY");
       if (apiKey) {
         try {
-          const resp = await fetch(
-            `https://vpnapi.io/api/${clientIP}?key=${apiKey}`
-          );
+          const resp = await fetch(`https://vpnapi.io/api/${clientIP}?key=${apiKey}`);
           const data = await resp.json();
 
           const country = data?.location?.country_code || "Unknown";
-          const isVpn = Boolean(data?.security?.vpn);
-          const isProxy = Boolean(data?.security?.proxy);
-          const isTor = Boolean(data?.security?.tor);
-          const isRelay = Boolean(data?.security?.relay);
+          const isVpn = !!data?.security?.vpn;
+          const isProxy = !!data?.security?.proxy;
+          const isTor = !!data?.security?.tor;
+          const isRelay = !!data?.security?.relay;
 
           debugData = {
             clientIP,
@@ -61,16 +68,9 @@ export default async (request, context) => {
             org: data?.network?.organization || data?.network?.asn || "Unknown"
           };
 
-          // ✅ Allow US traffic, including VPNs, but flag them
           if (country === "US") {
-            if (isVpn) addVpnHeader = false;
-
-            // 🎯 Randomly select users for CAPTCHA
-            if (isVpn && Math.random() < CAPTCHA_PROBABILITY) {
-              showCaptcha = true;
-            }
+            if (isVpn && Math.random() < CAPTCHA_PROBABILITY) showCaptcha = true;
           } else {
-            // 🚫 Block non-US or high-risk outside US
             if (isVpn || isProxy || isTor || isRelay || country !== "US") blockAccess = true;
           }
         } catch (err) {
@@ -83,14 +83,9 @@ export default async (request, context) => {
       debugData.note = "No client IP detected!";
     }
 
-    // ==========================
-    // DEBUG ROUTE (Temporary)
-    // ==========================
+    // Debug route
     if (path === "/debug-ip-bark9sol") {
-      return new Response(JSON.stringify({
-        message: "VPNAPI.io Debug",
-        ...debugData
-      }, null, 2), {
+      return new Response(JSON.stringify({ message: "VPNAPI.io Debug", ...debugData }, null, 2), {
         status: 200,
         headers: {
           "content-type": "application/json; charset=utf-8",
@@ -99,19 +94,17 @@ export default async (request, context) => {
       });
     }
 
-    // ==========================
-    // BLOCK OR ALLOW
-    // ==========================
+    // Block if flagged by geo logic
     if (blockAccess) {
-      return addSecurityHeaders(
-        new Response("Access Denied: Non-US or High-Risk Network", { status: 403 })
-      );
+      return addSecurityHeaders(new Response("Access Denied: Non-US or High-Risk Network", { status: 403 }));
     }
 
+    // Let the request proceed and then secure the response
     const response = await context.next();
     if (addVpnHeader) response.headers.set("X-VPN-Warning", "true");
     if (showCaptcha) response.headers.set("X-Show-Captcha", "true");
     return addSecurityHeaders(response);
+
   } catch (err) {
     console.error("Edge Function Error:", err);
     const response = await context.next();
@@ -120,81 +113,134 @@ export default async (request, context) => {
 };
 
 // ==========================
-// Helper: Security headers + dynamic CSP + logging
+// Helper: Security headers + strict nonce CSP
 // ==========================
 async function addSecurityHeaders(response) {
-  // Generate nonces
-  const scriptNonce = randomBytes(16).toString("base64");
-  const styleNonce = randomBytes(16).toString("base64");
+  // create nonces per-request
+  const scriptNonce = makeNonce();
+  const styleNonce = makeNonce();
 
-  // Get HTML
+  // read the HTML (if any)
   let html;
-  try { html = await response.clone().text(); } catch { html = ""; }
+  try {
+    html = await response.clone().text();
+  } catch {
+    html = "";
+  }
 
-  // Inject nonces for inline scripts/styles
-  html = html.replace(/<script(?![^>]*src)([^>]*)>/gi, `<script$1 nonce="${scriptNonce}">`);
-  html = html.replace(/<style([^>]*)>/gi, `<style$1 nonce="${styleNonce}">`);
+  // 1) Inject nonces into inline <script> and <style> tags that do NOT already have a nonce
+  //    - only targets true inline tags (no src for scripts)
+  if (html) {
+    // inject nonce into inline <script> (skip scripts that have src or already have nonce)
+    html = html.replace(
+      /<script((?:(?!\b(src|nonce)\b)[\s\S])*?)>([\s\S]*?)<\/script>/gi,
+      (m, attrPart, body) => {
+        // if tag contains src or nonce in attrPart, leave unchanged
+        if (/\b(src|nonce)\b/i.test(attrPart)) return m;
+        return `<script${attrPart} nonce="${scriptNonce}">${body}</script>`;
+      }
+    );
 
-  // Extract all URLs from HTML
+    // inject nonce into <style> tags that don't already have a nonce
+    html = html.replace(
+      /<style((?:(?!\bnonce\b)[\s\S])*?)>([\s\S]*?)<\/style>/gi,
+      (m, attrPart, body) => {
+        if (/\bnonce\b/i.test(attrPart)) return m;
+        return `<style${attrPart} nonce="${styleNonce}">${body}</style>`;
+      }
+    );
+  }
+
+  // 2) Extract static URLs from src/href/srcset to build a whitelist
   const srcUrls = [];
   const urlRegex = /(?:src|href|srcset)=["']([^"']+)["']/gi;
   let match;
-  while ((match = urlRegex.exec(html))) srcUrls.push(match[1]);
+  while ((match = urlRegex.exec(html)) !== null) srcUrls.push(match[1]);
 
-  // Predefined whitelist including MapLibre, CrispChat, TidyCal
+  // 3) Predefined trusted origins (includes MapLibre/OpenStreetMap/CARTO, Crisp, TidyCal, recaptcha, weather APIs)
   const predefined = [
     "'self'",
+    // common CDNs
     "https://cdnjs.cloudflare.com",
-    "https://fonts.googleapis.com",
     "https://cdn.jsdelivr.net",
+    "https://unpkg.com",
+    // analytics / tag manager
     "https://www.google-analytics.com",
     "https://www.googletagmanager.com",
-    "https://cdn.onesignal.com",
+    // fonts
+    "https://fonts.googleapis.com",
+    "https://fonts.gstatic.com",
+    // Crisp / TidyCal
     "https://client.crisp.chat",
+    "https://crisp.chat",
     "https://asset-tidycal.b-cdn.net",
-    "https://unpkg.com",
+    "https://tidycal.com",
+    // Map tile/style providers commonly used with MapLibre
+    "https://basemaps.cartocdn.com",
+    "https://api.maptiler.com",
+    "https://api.mapbox.com",
+    "https://maps.geoapify.com",
+    "https://carto.com",
     "https://*.tile.openstreetmap.org",
     "https://*.carto.com",
-    "https://tidycal.com"
+    // other APIs observed in your logs
+    "https://api.weather.gov",
+    "https://api.sunrise-sunset.org",
+    // reCAPTCHA
+    "https://www.google.com",
+    "https://www.gstatic.com"
   ];
 
-  // Merge with origins from HTML
+  // 4) Merge origins found in HTML with predefined
   const origins = new Set(predefined);
-  srcUrls.forEach(url => {
-    try { const fullUrl = url.startsWith("http") ? new URL(url) : null; if (fullUrl) origins.add(fullUrl.origin); } catch {}
+  srcUrls.forEach(u => {
+    try {
+      if (u.startsWith("http")) {
+        const parsed = new URL(u);
+        origins.add(parsed.origin);
+      }
+    } catch (e) { /* ignore bad urls */ }
   });
 
+  // Debug log (Netlify function logs)
   console.log("===== CSP Origins =====");
   origins.forEach(o => console.log(o));
   console.log("=======================");
 
-  // Build CSP
+  // 5) Build strict CSP using nonces (no 'unsafe-inline')
+  //    - script-src includes blob: because MapLibre and some libs may create blob workers
+  //    - style-src uses the style nonce; note: inline style attributes (style="") are not covered by nonce and will still be blocked
+  const originList = [...origins].join(" ");
   const csp = `
     default-src 'self';
-    script-src ${[...origins].join(" ")} 'nonce-${scriptNonce}' blob:;
-    style-src ${[...origins].join(" ")} 'nonce-${styleNonce}';
+    script-src ${originList} 'nonce-${scriptNonce}' blob:;
+    style-src ${originList} 'nonce-${styleNonce}';
     worker-src blob:;
-    img-src ${[...origins].join(" ")} data:;
-    font-src ${[...origins].join(" ")};
-    connect-src ${[...origins].join(" ")};
-    frame-src ${[...origins].join(" ")};
+    img-src ${originList} data:;
+    font-src ${originList};
+    connect-src ${originList};
+    frame-src ${originList};
     object-src 'none';
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
   `.replace(/\s+/g, " ").trim();
 
-  // Return new response with headers
-  response = new Response(html, response);
-  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
-  response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-  response.headers.set("X-Robots-Tag", "index, follow");
-  response.headers.set("Content-Security-Policy", csp);
-  response.headers.set("Content-Security-Policy-Nonce-Script", scriptNonce);
-  response.headers.set("Content-Security-Policy-Nonce-Style", styleNonce);
+  // 6) Return secured response with the modified HTML and headers
+  const secured = new Response(html, response);
 
-  return response;
+  // Standard security headers
+  secured.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  secured.headers.set("X-Frame-Options", "SAMEORIGIN");
+  secured.headers.set("X-Content-Type-Options", "nosniff");
+  secured.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  secured.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  secured.headers.set("X-Robots-Tag", "index, follow");
+
+  // CSP + expose nonces for debugging/client if you need
+  secured.headers.set("Content-Security-Policy", csp);
+  secured.headers.set("Content-Security-Policy-Nonce-Script", scriptNonce);
+  secured.headers.set("Content-Security-Policy-Nonce-Style", styleNonce);
+
+  return secured;
 }
