@@ -1,3 +1,20 @@
+// Helper to dynamically load scripts
+function loadScript(url, async = true, callback) {
+  const script = document.createElement('script');
+  script.src = url;
+  script.async = async;
+  if (callback) script.onload = callback;
+  document.head.appendChild(script);
+}
+
+// Load local scripts
+loadScript('script.obf.js', true);
+loadScript('ui-widgets.js', true);
+loadScript('banner.obf.js', true);
+loadScript('/recap-loader.js', true);
+
+// Your other dynamic scripts (GA, Crisp, MapLibre) remain in main.js as well
+
 // ======================
 // Helper function to dynamically load scripts
 // ======================
