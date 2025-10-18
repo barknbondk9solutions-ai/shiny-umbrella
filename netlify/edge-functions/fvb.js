@@ -211,36 +211,30 @@ async function addSecurityHeaders(response) {
   //    - script-src includes blob: because MapLibre and some libs may create blob workers
   //    - style-src uses the style nonce; note: inline style attributes (style="") are not covered by nonce and will still be blocked
   const originList = [...origins].join(" ");
-  const csp = `
-    default-src 'self';
-    script-src ${originList} 'nonce-${scriptNonce}' blob:;
-    style-src ${originList} 'nonce-${styleNonce}';
-    worker-src blob:;
-    img-src ${originList} data:;
-    font-src ${originList};
-    connect-src ${originList};
-    frame-src ${originList};
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-  `.replace(/\s+/g, " ").trim();
+  const csp = [
+    "default-src 'self';",
+    // --- Allow critical external resources ---
+    `script-src 'self' 'nonce-${scriptNonce}' https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://maps.geoapify.com https://carto.com https://api.maptiler.com https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com;`,
+    `style-src 'self' 'nonce-${styleNonce}' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://basemaps.cartocdn.com https://carto.com;`,
+    `img-src 'self' data: blob: https://client.crisp.chat https://crisp.chat https://cdn.jsdelivr.net https://unpkg.com https://tidycal.com https://asset-tidycal.b-cdn.net https://carto.com https://basemaps.cartocdn.com https://*.tile.openstreetmap.org https://*.carto.com https://maps.geoapify.com https://api.maptiler.com;`,
+    `connect-src 'self' https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://carto.com https://basemaps.cartocdn.com https://*.tile.openstreetmap.org https://maps.geoapify.com https://api.maptiler.com https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com;`,
+    "font-src 'self' https://fonts.gstatic.com;",
+    "frame-src 'self' https://tidycal.com https://client.crisp.chat https://crisp.chat;",
+    "object-src 'none';",
+    "base-uri 'self';",
+    "form-action 'self';",
+    "frame-ancestors 'none';",
+    "upgrade-insecure-requests;",
+  ].join(" ");
 
-  // 6) Return secured response with the modified HTML and headers
-  const secured = new Response(html, response);
+  response.headers.set("Content-Security-Policy", csp);
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
+  response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
 
-  // Standard security headers
-  secured.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
-  secured.headers.set("X-Frame-Options", "SAMEORIGIN");
-  secured.headers.set("X-Content-Type-Options", "nosniff");
-  secured.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  secured.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-  secured.headers.set("X-Robots-Tag", "index, follow");
-
-  // CSP + expose nonces for debugging/client if you need
-  secured.headers.set("Content-Security-Policy", csp);
-  secured.headers.set("Content-Security-Policy-Nonce-Script", scriptNonce);
-  secured.headers.set("Content-Security-Policy-Nonce-Style", styleNonce);
-
-  return secured;
-}
+  return { response, scriptNonce, styleNonce };
