@@ -1,7 +1,7 @@
+import { randomBytes } from "crypto";
+
 function generateNonce(length = 16) {
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  return btoa(String.fromCharCode(...array));
+  return randomBytes(length).toString("base64");
 }
 export default async (request, context) => {
   try {
