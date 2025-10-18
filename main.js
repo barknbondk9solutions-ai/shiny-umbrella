@@ -48,7 +48,12 @@ loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function (
       });
     }
 
- 
+    // Safely attach ZIP code check event
+    const zipBtn = document.getElementById('check-coverage');
+    if (zipBtn && typeof checkCoverage === 'function') {
+      zipBtn.addEventListener('click', checkCoverage);
+    }
+  });
 
   // Load local dependent scripts
   loadScript('script.obf.js');
