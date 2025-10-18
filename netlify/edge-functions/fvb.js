@@ -26,7 +26,7 @@ function addSecurityHeaders(response) {
     "https://asset-tidycal.b-cdn.net",
     "https://assets.zyrosite.com",
     "https://client.crisp.chat",
-    "https://basemaps.cartocdn.com"
+    "https://basemaps.cartocdn.com" 
   ];
 
   const FRAME_WHITELIST = [
@@ -47,7 +47,7 @@ function addSecurityHeaders(response) {
     "https://tiles-b.basemaps.cartocdn.com",
     "https://tiles-c.basemaps.cartocdn.com",
     "https://tiles-d.basemaps.cartocdn.com",
-    "https://nominatim.openstreetmap.org",
+    "https://nominatim.openstreetmap.org", 
     "https://api.sunrise-sunset.org",
     "https://api.weather.gov",
     "https://client.crisp.chat",
