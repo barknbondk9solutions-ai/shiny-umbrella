@@ -1,5 +1,8 @@
-import { randomBytes } from "crypto"; // Node.js/Deno crypto
-
+function generateNonce(length = 16) {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
+}
 export default async (request, context) => {
   try {
     const url = new URL(request.url);
@@ -125,8 +128,8 @@ export default async (request, context) => {
 // ==========================
 async function addSecurityHeaders(response) {
   // Generate nonces
-  const scriptNonce = randomBytes(16).toString("base64");
-  const styleNonce = randomBytes(16).toString("base64");
+const scriptNonce = generateNonce();
+const styleNonce = generateNonce();
 
   // Get HTML
   let html;
