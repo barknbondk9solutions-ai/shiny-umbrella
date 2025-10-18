@@ -132,7 +132,7 @@ export default async (request, context) => {
 // ==========================
 // Helper: Security headers + auto-nonce injection
 // ==========================
-async function addSecurityHeaders(response){
+async function addSecurityHeaders(response) {
   const scriptNonce = makeNonce();
   const styleNonce = makeNonce();
 
@@ -145,6 +145,9 @@ async function addSecurityHeaders(response){
   }
 
   if (html) {
+    // Replace placeholder __NONCE__ in your HTML scripts
+    html = html.replace(/nonce="__NONCE__"/g, `nonce="${scriptNonce}"`);
+
     // Inject nonce into inline <script> tags
     html = html.replace(
       /<script((?:(?!\b(src|nonce)\b)[\s\S])*?)>([\s\S]*?)<\/script>/gi,
@@ -167,14 +170,19 @@ async function addSecurityHeaders(response){
     response = new Response(html, response);
   }
 
-  // Set headers including CSP
-  response.headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload");
-  response.headers.set("X-Frame-Options","SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options","nosniff");
-  response.headers.set("Referrer-Policy","strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy","geolocation=(), microphone=(), camera=()");
+  // ==========================
+  // Set security headers
+  // ==========================
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  response.headers.set("X-Robots-Tag", "index, follow");
 
-  // Secure CSP that allows inline scripts/styles with nonce
+  // ==========================
+  // Content-Security-Policy
+  // ==========================
   response.headers.set("Content-Security-Policy",
     `default-src 'self'; ` +
     `script-src 'self' 'nonce-${scriptNonce}' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://www.google-analytics.com; ` +
@@ -190,6 +198,4 @@ async function addSecurityHeaders(response){
     `upgrade-insecure-requests;`
   );
 
-  response.headers.set("X-Robots-Tag", "index, follow");
   return response;
-}
