@@ -129,24 +129,50 @@ function addSecurityHeaders(response) {
   response.headers.set("X-Robots-Tag", "index, follow");
 
   // ==========================
-  // Content Security Policy
+  // Whitelist of external scripts & styles
+  // ==========================
+  const externalScripts = [
+    "https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH",
+    "https://asset-tidycal.b-cdn.net/js/embed.js",
+    "https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"
+  ];
+
+  const externalStyles = [
+    "https://unpkg.com/maplibre-gl/dist/maplibre-gl.css",
+    "https://assets.zyrosite.com/style.min.css",
+    "https://assets.zyrosite.com/banner-style.min.css",
+    "https://unpkg.com",
+    "https://fonts.googleapis.com",
+    "https://asset-tidycal.b-cdn.net"
+  ];
+
+  const externalConnect = [
+    "https://asset-tidycal.b-cdn.net",
+    "https://www.googletagmanager.com",
+    "https://www.google-analytics.com",
+    "https://basemaps.cartocdn.com",
+    "https://api.sunrise-sunset.org",
+    "https://api.weather.gov",
+    "https://client.crisp.chat"
+  ];
+
+  const externalFrames = [
+    "https://tidycal.com",
+    "https://client.crisp.chat"
+  ];
+
+  // ==========================
+  // Build Content Security Policy dynamically
   // ==========================
   const csp = [
     "default-src 'self';",
-    // Allow your external scripts
-    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
-    "script-src-elem 'self' https://www.googletagmanager.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
-    // Allow Web Workers (needed for MapLibre)
+    `script-src 'self' ${externalScripts.join(" ")};`,
+    `script-src-elem 'self' ${externalScripts.join(" ")};`,
     "worker-src 'self' blob:;",
-    // Styles
-    "style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net;",
-    // Images
+    `style-src 'self' 'unsafe-inline' ${externalStyles.join(" ")};`,
     "img-src 'self' data: https://assets.zyrosite.com;",
-    // APIs / AJAX / fetch
-    "connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com https://basemaps.cartocdn.com https://api.sunrise-sunset.org https://api.weather.gov https://client.crisp.chat;",
-    // iframes
-    "frame-src https://tidycal.com https://client.crisp.chat;",
-    // Fonts
+    `connect-src 'self' ${externalConnect.join(" ")};`,
+    `frame-src ${externalFrames.join(" ")};`,
     "font-src https://fonts.gstatic.com;",
     "object-src 'none';",
     "base-uri 'self';",
