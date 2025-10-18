@@ -14,14 +14,32 @@ const serviceZips = [
 ];
 
 let currentMarker = null;
+let map = null;
 
-// Initialize map
-const map = new maplibregl.Map({
-  container: 'map',
-  style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  center: [-80.25, 25.76], // Miami
-  zoom: 10
-});
+// Initialize map safely after library loads
+function initMap() {
+  const mapContainer = document.getElementById('map');
+  if (!mapContainer || typeof maplibregl === 'undefined') return;
+
+  map = new maplibregl.Map({
+    container: 'map',
+    style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+    center: [-80.25, 25.76], // Miami
+    zoom: 10
+  });
+}
+
+// Retry if maplibregl isn't loaded yet
+if (typeof maplibregl !== 'undefined') {
+  initMap();
+} else {
+  const mapCheck = setInterval(() => {
+    if (typeof maplibregl !== 'undefined') {
+      clearInterval(mapCheck);
+      initMap();
+    }
+  }, 50);
+}
 
 // Check if ZIP is covered and place marker
 function checkCoverage() {
@@ -36,7 +54,7 @@ function checkCoverage() {
     fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`)
       .then(res => res.json())
       .then(data => {
-        if (data.length > 0) {
+        if (data.length > 0 && map) {
           const { lat, lon } = data[0];
           currentMarker = new maplibregl.Marker()
             .setLngLat([parseFloat(lon), parseFloat(lat)])
@@ -54,7 +72,6 @@ function checkCoverage() {
 }
 
 // Time and hours of operation logic
-
 function getEasternTime() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
 }
@@ -142,8 +159,7 @@ function getTodayStatus() {
   }
 
   if (day === 0) {
-    // Sunday
-    const nextOpenDay = schedule[1]; // Next Monday
+    const nextOpenDay = schedule[1];
     const nextOpenTime = formatTime(nextOpenDay.openHour, nextOpenDay.openMinute);
     return `We are closed today (Sunday). We'll be back on Monday at ${nextOpenTime}.`;
   }
@@ -164,7 +180,6 @@ function getTodayStatus() {
     }
     return `We are open! We close at ${closeTime}.`;
   } else {
-    // Business is closed
     const nextOpenDay = schedule[day === 6 ? 1 : day + 1];
     const nextOpenTime = formatTime(nextOpenDay.openHour, nextOpenDay.openMinute);
     return `We are currently closed. We will reopen at ${nextOpenTime}.`;
@@ -182,9 +197,8 @@ setInterval(updateStatus, 60000);
 
 // Attach ZIP coverage check button safely under CSP
 document.addEventListener("DOMContentLoaded", () => {
-  const zipButton = document.querySelector("button[onclick='checkCoverage()']");
+  const zipButton = document.getElementById('check-coverage');
   if (zipButton) {
-    zipButton.removeAttribute("onclick"); // remove inline call
-    zipButton.addEventListener("click", checkCoverage); // rebind it safely
+    zipButton.addEventListener("click", checkCoverage);
   }
 });
