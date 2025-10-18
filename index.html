@@ -87,35 +87,43 @@
   <div id="banner-container"></div>
 
   <main id="page-content">
-    <div id="service-widget">
-      <div id="location-section">
-        <div class="location-text">
-          <h2>See If We Serve Your Neighborhood</h2>
-          <p>At BarkNBondK9Solutions, we bring personalized dog training directly to your door! Serving Miami-Dade County, our experienced trainers travel to your home or preferred location to provide one-on-one sessions tailored to your dog’s unique needs.</p>
-          <p>Start your dog’s journey toward positive change today—right where they feel most comfortable.</p>
+      <!-- ====== Main Service Widget ====== -->
+  <div id="service-widget">
+    <div id="location-section">
+      <div class="location-text">
+        <h2>See If We Serve Your Neighborhood</h2>
+        <p>
+          At BarkNBondK9Solutions, we bring personalized dog training directly to your door! 
+          Serving Miami-Dade County, our experienced trainers travel to your home or preferred location 
+          to provide one-on-one sessions tailored to your dog’s unique needs.
+        </p>
+        <p>Start your dog’s journey toward positive change today—right where they feel most comfortable.</p>
 
-          <div class="hours">
-            <strong>HOURS OF OPERATION</strong><br>
-            Monday - Friday | 8:00AM - 5:00PM <span id="monfri-status"></span><br>
-            Saturday | 8:00AM - 12:00PM <span id="sat-status"></span><br>
-            Sunday | Closed <span id="sun-status"></span><br><br>
+ <!-- ====== Hours of Operation ====== -->
+<div class="hours">
+  <strong>HOURS OF OPERATION</strong><br>
+  Monday - Friday | 8:00AM - 5:00PM <span id="monfri-status"></span><br>
+  Saturday | 8:00AM - 12:00PM <span id="sat-status"></span><br>
+  Sunday | Closed <span id="sun-status"></span><br><br>
 
-            <strong>CONTACT US</strong><br>
-            <a href="tel:+18336584388" class="contact-link">(833) 658-4388</a><br>
-            <a href="mailto:info@barknbondk9solutions.com" class="contact-link">info@barknbondk9solutions.com</a>
-            <p id="status-message" class="status-msg"></p>
+  <strong>CONTACT US</strong><br>
+  <a href="tel:+18336584388" style="color: #000; text-decoration: underline;">(833) 658-4388</a><br>
+  <a href="mailto:info@barknbondk9solutions.com" style="color: #000; text-decoration: underline;">info@barknbondk9solutions.com</a>
+  
+<p id="status-message" style="margin-top: 12px; text-align: center; font-weight: bold; color: #b3833b;"></p>
 
-            <h3>Check if we cover your ZIP code</h3>
-            <input type="text" id="zipInput" placeholder="Enter ZIP code" />
-            <button id="check-coverage">Check Coverage</button>
-            <p id="result"></p>
-          </div>
-        </div>
+        <!-- ====== ZIP Code Coverage ====== -->
+        <h3>Check if we cover your ZIP code</h3>
+        <input type="text" id="zipInput" placeholder="Enter ZIP code" />
+        <button onclick="checkCoverage()">Check Coverage</button>
+        <p id="result"></p>
+      </div> 
 
-        <div class="location-map">
-          <div id="map"></div>
-        </div>
-      </div>
+      <!-- ====== Map Display ====== -->
+      <div class="location-map">
+        <div id="map"></div>
+      </div> 
+    </div> 
 
       <div class="tidycal-embed" data-path="barknbondk9solutions/15-minute-meeting-m825nx2"></div>
     </div>
