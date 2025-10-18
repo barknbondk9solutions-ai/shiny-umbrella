@@ -117,35 +117,38 @@ export default async (request, context) => {
   }
 };
 
-async function addSecurityHeaders(response) {
+function addSecurityHeaders(response) {
+  // ==========================
   // Standard security headers
-  response.headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload");
-  response.headers.set("X-Frame-Options","SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options","nosniff");
-  response.headers.set("Referrer-Policy","strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy","geolocation=(), microphone=(), camera=()");
+  // ==========================
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
   response.headers.set("X-Robots-Tag", "index, follow");
 
+  // ==========================
   // Content Security Policy
-  response.headers.set(
-    "Content-Security-Policy",
-    `
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;
-      script-src-elem 'self' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;
-      worker-src 'self' blob:;
-      style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net;
-      img-src 'self' data: https://assets.zyrosite.com;
-      connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com https://basemaps.cartocdn.com https://api.sunrise-sunset.org https://api.weather.gov https://client.crisp.chat;
-      frame-src https://tidycal.com https://client.crisp.chat;
-      font-src https://fonts.gstatic.com;
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      frame-ancestors 'self';
-      upgrade-insecure-requests;
-    `
-  );
+  // ==========================
+  const csp = [
+    "default-src 'self';",
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
+    "script-src-elem 'self' https://www.googletagmanager.com https://www.google-analytics.com https://asset-tidycal.b-cdn.net https://unpkg.com https://client.crisp.chat https://www.google.com/recaptcha/;",
+    "worker-src 'self' blob:;",
+    "style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://asset-tidycal.b-cdn.net;",
+    "img-src 'self' data: https://assets.zyrosite.com;",
+    "connect-src 'self' https://asset-tidycal.b-cdn.net https://www.googletagmanager.com https://www.google-analytics.com https://basemaps.cartocdn.com https://api.sunrise-sunset.org https://api.weather.gov https://client.crisp.chat;",
+    "frame-src https://tidycal.com https://client.crisp.chat;",
+    "font-src https://fonts.gstatic.com;",
+    "object-src 'none';",
+    "base-uri 'self';",
+    "form-action 'self';",
+    "frame-ancestors 'self';",
+    "upgrade-insecure-requests;"
+  ].join(" ");
+
+  response.headers.set("Content-Security-Policy", csp);
 
   return response;
 }
