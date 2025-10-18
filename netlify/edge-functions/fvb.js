@@ -215,5 +215,3 @@ async function addSecurityHeaders(response) {
 
   return response;
 }
-
-export default addSecurityHeaders;
