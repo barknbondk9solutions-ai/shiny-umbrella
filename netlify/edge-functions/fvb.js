@@ -159,17 +159,17 @@ async function addSecurityHeaders(response) {
     );
   }
 
-  // Hybrid CSP: keep unsafe-inline but add nonce support
-  response.headers.set("Content-Security-Policy",
-    `default-src * data: blob: filesystem: about: ws: wss:; ` +
-    `script-src * 'unsafe-inline' 'nonce-${scriptNonce}' 'unsafe-eval' data: blob:; ` +
-    `style-src * 'unsafe-inline' 'nonce-${styleNonce}' data: blob:; ` +
-    `img-src * data: blob:; ` +
-    `connect-src * data: blob:; ` +
-    `frame-src * data: blob:; ` +
-    `media-src * data: blob:; ` +
-    `font-src * data: blob:;`
-  );
+// For styles, allow unsafe-inline but remove nonce
+response.headers.set("Content-Security-Policy",
+  `default-src * data: blob: filesystem: about: ws: wss:; ` +
+  `script-src * 'unsafe-inline' 'nonce-${scriptNonce}' 'unsafe-eval' data: blob:; ` +
+  `style-src * 'unsafe-inline' data: blob:; ` +
+  `img-src * data: blob:; ` +
+  `connect-src * data: blob:; ` +
+  `frame-src * data: blob:; ` +
+  `media-src * data: blob:; ` +
+  `font-src * data: blob:;`
+);
 
   response.headers.set("Strict-Transport-Security","max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options","SAMEORIGIN");
