@@ -118,9 +118,7 @@ export default async (request, context) => {
 };
 
 function addSecurityHeaders(response) {
-  // ==========================
   // Standard security headers
-  // ==========================
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -128,9 +126,7 @@ function addSecurityHeaders(response) {
   response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
   response.headers.set("X-Robots-Tag", "index, follow");
 
-  // ==========================
-  // Whitelist (Easily extendable)
-  // ==========================
+  // Whitelists
   const SCRIPT_WHITELIST = [
     "'self'",
     "https://www.googletagmanager.com",
@@ -138,7 +134,7 @@ function addSecurityHeaders(response) {
     "https://unpkg.com",
     "https://client.crisp.chat",
     "https://www.google.com",
-    "https://www.gstatic.com" // Added for reCAPTCHA & Google scripts
+    "https://www.gstatic.com"
   ];
 
   const STYLE_WHITELIST = [
@@ -165,13 +161,15 @@ function addSecurityHeaders(response) {
     "https://api.sunrise-sunset.org",
     "https://api.weather.gov",
     "https://client.crisp.chat",
-    "https://www.gstatic.com" // Added for reCAPTCHA & Google APIs
+    "https://www.gstatic.com",
+    "https://www.google.com",
+    "wss://client.relay.crisp.chat"
   ];
 
   const FRAME_WHITELIST = [
     "https://tidycal.com",
     "https://client.crisp.chat",
-    "https://www.google.com" // For reCAPTCHA iframe
+    "https://www.google.com"
   ];
 
   const FONT_WHITELIST = [
@@ -179,9 +177,7 @@ function addSecurityHeaders(response) {
     "https://client.crisp.chat"
   ];
 
-  // ==========================
   // Construct CSP
-  // ==========================
   const csp = [
     "default-src 'self';",
     `script-src ${SCRIPT_WHITELIST.join(" ")};`,
