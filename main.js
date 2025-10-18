@@ -1,23 +1,47 @@
-// Google Analytics
-window.dataLayer = window.dataLayer || [];
-function gtag() {
-  dataLayer.push(arguments);
+// Helper function to dynamically load scripts
+function loadExternalScript(url, async = true, callback) {
+  const script = document.createElement('script');
+  script.src = url;
+  script.async = async;
+  if (callback) {
+    script.onload = callback;
+  }
+  document.head.appendChild(script);
 }
-gtag('js', new Date());
-gtag('config', 'G-6YDTVFLPLH');
 
+// ======================
+// Google Analytics
+// ======================
+loadExternalScript("https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH", true, function() {
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-6YDTVFLPLH');
+});
+
+// ======================
 // Crisp Chat Widget
+// ======================
 window.$crisp = [];
 window.CRISP_WEBSITE_ID = "3414fd4a-ab39-440d-a142-8cf19be43ed1";
-(function () {
-  const d = document;
-  const s = d.createElement("script");
-  s.src = "https://client.crisp.chat/l.js";
-  s.async = 1;
-  d.getElementsByTagName("head")[0].appendChild(s);
-})();
+loadExternalScript("https://client.crisp.chat/l.js");
 
+// ======================
+// MapLibre (example)
+// ======================
+loadExternalScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", false, function() {
+  // Initialize map after script loads
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: 'https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+    center: [-80.2995, 25.82],
+    zoom: 10
+  });
+});
+
+// ======================
 // Current Year in Footer
+// ======================
 document.addEventListener("DOMContentLoaded", function () {
   const yearElement = document.getElementById('current-year');
   if (yearElement) {
