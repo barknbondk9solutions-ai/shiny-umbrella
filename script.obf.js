@@ -1,1 +1,190 @@
-const a0_0x571dbb=a0_0x2cc8;(function(_0x21232a,_0x29bdfd){const _0x4b7159=a0_0x2cc8,_0x554ae5=_0x21232a();while(!![]){try{const _0xd1da0=parseInt(_0x4b7159(0x246))/0x1*(-parseInt(_0x4b7159(0x22f))/0x2)+parseInt(_0x4b7159(0x20f))/0x3+parseInt(_0x4b7159(0x1df))/0x4+parseInt(_0x4b7159(0x21d))/0x5+-parseInt(_0x4b7159(0x22a))/0x6*(parseInt(_0x4b7159(0x212))/0x7)+-parseInt(_0x4b7159(0x20c))/0x8*(parseInt(_0x4b7159(0x1fa))/0x9)+-parseInt(_0x4b7159(0x21b))/0xa*(-parseInt(_0x4b7159(0x200))/0xb);if(_0xd1da0===_0x29bdfd)break;else _0x554ae5['push'](_0x554ae5['shift']());}catch(_0x4ef82a){_0x554ae5['push'](_0x554ae5['shift']());}}}(a0_0x217b,0xa17ff));const serviceZips=[a0_0x571dbb(0x1dc),a0_0x571dbb(0x20e),a0_0x571dbb(0x1f8),'33014',a0_0x571dbb(0x1da),a0_0x571dbb(0x1ec),a0_0x571dbb(0x251),a0_0x571dbb(0x1e3),a0_0x571dbb(0x1f3),a0_0x571dbb(0x1e7),a0_0x571dbb(0x21f),'33034',a0_0x571dbb(0x23c),a0_0x571dbb(0x1ed),a0_0x571dbb(0x252),a0_0x571dbb(0x207),'33122',a0_0x571dbb(0x1e5),a0_0x571dbb(0x234),a0_0x571dbb(0x21e),a0_0x571dbb(0x240),'33129',a0_0x571dbb(0x221),a0_0x571dbb(0x237),a0_0x571dbb(0x214),a0_0x571dbb(0x201),'33134',a0_0x571dbb(0x1ee),'33136',a0_0x571dbb(0x1e6),a0_0x571dbb(0x249),a0_0x571dbb(0x1f0),a0_0x571dbb(0x23b),a0_0x571dbb(0x226),a0_0x571dbb(0x236),'33143',a0_0x571dbb(0x217),a0_0x571dbb(0x218),'33146','33147',a0_0x571dbb(0x228),'33150',a0_0x571dbb(0x1ef),a0_0x571dbb(0x1f7),a0_0x571dbb(0x257),a0_0x571dbb(0x231),a0_0x571dbb(0x1db),'33156',a0_0x571dbb(0x215),a0_0x571dbb(0x209),a0_0x571dbb(0x1e0),a0_0x571dbb(0x1f6),a0_0x571dbb(0x20a),a0_0x571dbb(0x250),'33163',a0_0x571dbb(0x220),a0_0x571dbb(0x211),a0_0x571dbb(0x24d),a0_0x571dbb(0x1ff),a0_0x571dbb(0x253),a0_0x571dbb(0x1fe),a0_0x571dbb(0x258),a0_0x571dbb(0x1e9),a0_0x571dbb(0x248),a0_0x571dbb(0x229),'33175',a0_0x571dbb(0x23a),a0_0x571dbb(0x1e2),a0_0x571dbb(0x20d),a0_0x571dbb(0x1f2),a0_0x571dbb(0x227),a0_0x571dbb(0x24c),'33182',a0_0x571dbb(0x254),a0_0x571dbb(0x232),'33185','33186',a0_0x571dbb(0x24e),a0_0x571dbb(0x24b),a0_0x571dbb(0x223),'33193',a0_0x571dbb(0x23f),a0_0x571dbb(0x24f)];let currentMarker=null;const map=new maplibregl[(a0_0x571dbb(0x22c))]({'container':a0_0x571dbb(0x1fd),'style':a0_0x571dbb(0x1de),'center':[-80.25,25.76],'zoom':0xa});function checkCoverage(){const _0x8b2712=a0_0x571dbb,_0x2c5457=document['getElementById'](_0x8b2712(0x219))[_0x8b2712(0x205)][_0x8b2712(0x1ea)](),_0x3815af=document[_0x8b2712(0x259)](_0x8b2712(0x1e8));if(currentMarker)currentMarker[_0x8b2712(0x22d)]();serviceZips[_0x8b2712(0x22e)](_0x2c5457)?(_0x3815af[_0x8b2712(0x206)]='✅\x20Looks\x20like\x20we’ve\x20got\x20your\x20area\x20covered\x20in\x20'+_0x2c5457+_0x8b2712(0x1e4),fetch(_0x8b2712(0x216)+_0x2c5457+_0x8b2712(0x243))[_0x8b2712(0x1f4)](_0x43f552=>_0x43f552['json']())[_0x8b2712(0x1f4)](_0x46b336=>{const _0x49cae4=_0x8b2712;if(_0x46b336['length']>0x0){const {lat:_0x201ef0,lon:_0x26e64d}=_0x46b336[0x0];currentMarker=new maplibregl[(_0x49cae4(0x255))]()[_0x49cae4(0x256)]([parseFloat(_0x26e64d),parseFloat(_0x201ef0)])[_0x49cae4(0x20b)](new maplibregl['Popup']()['setText']('ZIP:\x20'+_0x2c5457))[_0x49cae4(0x1e1)](map)['togglePopup'](),map[_0x49cae4(0x1f9)]({'center':[parseFloat(_0x26e64d),parseFloat(_0x201ef0)],'zoom':0xd});}})['catch'](_0x50198c=>console['error'](_0x8b2712(0x224),_0x2c5457,_0x50198c))):_0x3815af[_0x8b2712(0x206)]=_0x8b2712(0x1dd)+_0x2c5457+_0x8b2712(0x1d9);}function getEasternTime(){const _0x2015a3=a0_0x571dbb;return new Date(new Date()[_0x2015a3(0x21c)](_0x2015a3(0x24a),{'timeZone':_0x2015a3(0x1fb)}));}function getNthWeekday(_0x40b0bc,_0x1e921c,_0x267b65,_0x4b915d){let _0x44597c=new Date(_0x40b0bc,_0x1e921c,0x1),_0x594f21=0x0;while(_0x44597c['getMonth']()===_0x1e921c){if(_0x44597c['getDay']()===_0x267b65){_0x594f21++;if(_0x594f21===_0x4b915d)return new Date(_0x44597c);}_0x44597c['setDate'](_0x44597c['getDate']()+0x1);}return null;}function getLastWeekday(_0x2c786e,_0x22d0c3,_0x335f12){const _0x12ad91=a0_0x571dbb;let _0x1da7ce=new Date(_0x2c786e,_0x22d0c3+0x1,0x0);while(_0x1da7ce[_0x12ad91(0x239)]()!==_0x335f12){_0x1da7ce[_0x12ad91(0x213)](_0x1da7ce['getDate']()-0x1);}return _0x1da7ce;}function a0_0x2cc8(_0x151a7d,_0x6ac7eb){const _0x217b82=a0_0x217b();return a0_0x2cc8=function(_0x2cc826,_0x5e2475){_0x2cc826=_0x2cc826-0x1d9;let _0x42bd46=_0x217b82[_0x2cc826];return _0x42bd46;},a0_0x2cc8(_0x151a7d,_0x6ac7eb);}function applyObserved(_0x4b7950){const _0x39b4aa=a0_0x571dbb,_0x3c92b0=new Date(_0x4b7950);if(_0x3c92b0[_0x39b4aa(0x239)]()===0x6)_0x3c92b0[_0x39b4aa(0x213)](_0x3c92b0[_0x39b4aa(0x202)]()-0x1);else{if(_0x3c92b0[_0x39b4aa(0x239)]()===0x0)_0x3c92b0[_0x39b4aa(0x213)](_0x3c92b0[_0x39b4aa(0x202)]()+0x1);}return _0x3c92b0;}function getFederalHolidays(_0x3239fb){const _0x2db917=a0_0x571dbb,_0x2d9bd1=[];function _0x34eedb(_0xa53c37,_0x326abb,_0x59b529=!![]){const _0x28d917=a0_0x2cc8;_0x2d9bd1[_0x28d917(0x203)]({'date':_0xa53c37[_0x28d917(0x244)](),'name':_0x326abb});if(_0x59b529){const _0x7f58a6=applyObserved(_0xa53c37);_0x7f58a6['toDateString']()!==_0xa53c37['toDateString']()&&_0x2d9bd1[_0x28d917(0x203)]({'date':_0x7f58a6['toDateString'](),'name':_0x326abb+_0x28d917(0x247)});}}return _0x34eedb(new Date(_0x3239fb,0x0,0x1),'New\x20Year\x27s\x20Day'),_0x34eedb(getNthWeekday(_0x3239fb,0x0,0x1,0x3),_0x2db917(0x1fc),![]),_0x34eedb(getNthWeekday(_0x3239fb,0x1,0x1,0x3),'Presidents\x20Day',![]),_0x34eedb(getLastWeekday(_0x3239fb,0x4,0x1),'Memorial\x20Day',![]),_0x34eedb(new Date(_0x3239fb,0x5,0x13),_0x2db917(0x242)),_0x34eedb(new Date(_0x3239fb,0x6,0x4),'Independence\x20Day'),_0x34eedb(getNthWeekday(_0x3239fb,0x8,0x1,0x1),_0x2db917(0x1eb),![]),_0x34eedb(getNthWeekday(_0x3239fb,0x9,0x1,0x2),_0x2db917(0x238),![]),_0x34eedb(new Date(_0x3239fb,0xa,0xb),_0x2db917(0x23e)),_0x34eedb(getNthWeekday(_0x3239fb,0xa,0x4,0x4),_0x2db917(0x222),![]),_0x34eedb(new Date(_0x3239fb,0xb,0x19),'Christmas\x20Day'),_0x2d9bd1;}function a0_0x217b(){const _0x5629c1=['33166','33187','33196','33162','33018','33101','33168','33183','Marker','setLngLat','33153','33170','getElementById','\x20yet.','33015','33155','33010','❌\x20Sorry,\x20we\x20don’t\x20cover\x20','https://basemaps.cartocdn.com/gl/positron-gl-style/style.json','1061296DaNHwS','33159','addTo','33177','33030','.\x20Let’s\x20get\x20started!\x20Pick\x20a\x20time\x20below\x20to\x20claim\x20your\x20free\x20consultation\x20call.','33125','33137','33032','result','33172','trim','Labor\x20Day','33016','33039','33135','33151','33139','We\x27re\x20closing\x20soon.\x20We\x20close\x20at\x20','33179','33031','then','We\x20are\x20currently\x20closed.\x20We\x20will\x20reopen\x20at\x20','33160','33152','33013','flyTo','7529211OqDPvp','America/New_York','Martin\x20Luther\x20King\x20Jr.\x20Day','map','33169','33167','8445448lStdHl','33133','getDate','push','getMinutes','value','innerHTML','33109','closeMinute','33158','33161','setPopup','8vtTPjy','33178','33012','3612939rQLAhC','toString','33165','1554bxXzwk','setDate','33132','33157','https://nominatim.openstreetmap.org/search?postalcode=','33144','33145','zipInput','name','20VDuvzz','toLocaleString','1881790NLWYnu','33127','33033','33164','33130','Thanksgiving\x20Day','33190','Error\x20fetching\x20ZIP\x20coordinates:','padStart','33141','33180','33149','33174','17220dbsfVD','openMinute','Map','remove','includes','2492618XswnzN','getHours','33154','33184','openHour','33126','We\x20are\x20closed\x20today.','33142','33131','Columbus\x20Day','getDay','33176','33140','33035','innerText','Veterans\x20Day','33194','33128','find','Juneteenth\x20National\x20Independence\x20Day','&country=USA&format=json','toDateString','getFullYear','1pINQiz','\x20(Observed)','33173','33138','en-US','33189','33181'];a0_0x217b=function(){return _0x5629c1;};return a0_0x217b();}const schedule={0x1:{'openHour':0x8,'openMinute':0x0,'closeHour':0x11,'closeMinute':0x0},0x2:{'openHour':0x8,'openMinute':0x0,'closeHour':0x11,'closeMinute':0x0},0x3:{'openHour':0x8,'openMinute':0x0,'closeHour':0x11,'closeMinute':0x0},0x4:{'openHour':0x8,'openMinute':0x0,'closeHour':0x11,'closeMinute':0x0},0x5:{'openHour':0x8,'openMinute':0x0,'closeHour':0x11,'closeMinute':0x0},0x6:{'openHour':0x8,'openMinute':0x0,'closeHour':0xc,'closeMinute':0x0}};function formatTime(_0x20f726,_0x3059fc){const _0x3363c3=a0_0x571dbb,_0x3d398c=_0x20f726>=0xc?'PM':'AM',_0x15d55e=_0x20f726%0xc||0xc,_0x483643=_0x3059fc[_0x3363c3(0x210)]()[_0x3363c3(0x225)](0x2,'0');return _0x15d55e+':'+_0x483643+'\x20'+_0x3d398c;}function getTodayStatus(){const _0x5392af=a0_0x571dbb,_0x214c69=getEasternTime(),_0x10d095=_0x214c69[_0x5392af(0x239)](),_0x21ca36=_0x214c69[_0x5392af(0x245)](),_0x4007d8=getFederalHolidays(_0x21ca36),_0x23106d=_0x4007d8[_0x5392af(0x241)](_0x4df98c=>_0x4df98c['date']===_0x214c69[_0x5392af(0x244)]());if(_0x23106d)return'We\x20are\x20closed\x20today\x20for\x20'+_0x23106d[_0x5392af(0x21a)]+'.';if(_0x10d095===0x0){const _0x532f19=schedule[0x1],_0x1b4e9a=formatTime(_0x532f19[_0x5392af(0x233)],_0x532f19[_0x5392af(0x22b)]);return'We\x20are\x20closed\x20today\x20(Sunday).\x20We\x27ll\x20be\x20back\x20on\x20Monday\x20at\x20'+_0x1b4e9a+'.';}const _0x2a0a26=schedule[_0x10d095];if(!_0x2a0a26)return _0x5392af(0x235);const _0x4aea5d=formatTime(_0x2a0a26['openHour'],_0x2a0a26[_0x5392af(0x22b)]),_0x14a72d=formatTime(_0x2a0a26['closeHour'],_0x2a0a26['closeMinute']),_0x305bff=_0x214c69[_0x5392af(0x230)]()*0x3c+_0x214c69[_0x5392af(0x204)](),_0x500cb4=_0x2a0a26[_0x5392af(0x233)]*0x3c+_0x2a0a26[_0x5392af(0x22b)],_0x5e69ec=_0x2a0a26['closeHour']*0x3c+_0x2a0a26[_0x5392af(0x208)];if(_0x305bff>=_0x500cb4&&_0x305bff<_0x5e69ec){if(_0x305bff>=_0x5e69ec-0x1e)return _0x5392af(0x1f1)+_0x14a72d+'.';return'We\x20are\x20open!\x20We\x20close\x20at\x20'+_0x14a72d+'.';}else{const _0xbec323=schedule[_0x10d095===0x6?0x1:_0x10d095+0x1],_0x44cb69=formatTime(_0xbec323[_0x5392af(0x233)],_0xbec323[_0x5392af(0x22b)]);return _0x5392af(0x1f5)+_0x44cb69+'.';}}function updateStatus(){const _0x1b1cd5=a0_0x571dbb,_0x3193f3=getTodayStatus();document[_0x1b1cd5(0x259)]('status-message')[_0x1b1cd5(0x23d)]=_0x3193f3;}updateStatus(),setInterval(updateStatus,0xea60);
+// Miami-Dade ZIP codes you cover
+const serviceZips = [
+  "33010", "33012", "33013", "33014", "33015", "33016", "33018", "33030", 
+  "33031", "33032", "33033", "33034", "33035", "33039", "33101", "33109", 
+  "33122", "33125", "33126", "33127", "33128", "33129", "33130", "33131", 
+  "33132", "33133", "33134", "33135", "33136", "33137", "33138", "33139", 
+  "33140", "33141", "33142", "33143", "33144", "33145", "33146", "33147", 
+  "33149", "33150", "33151", "33152", "33153", "33154", "33155", "33156", 
+  "33157", "33158", "33159", "33160", "33161", "33162", "33163", "33164", 
+  "33165", "33166", "33167", "33168", "33169", "33170", "33172", "33173", 
+  "33174", "33175", "33176", "33177", "33178", "33179", "33180", "33181", 
+  "33182", "33183", "33184", "33185", "33186", "33187", "33189", "33190", 
+  "33193", "33194", "33196"
+];
+
+let currentMarker = null;
+
+// Initialize map
+const map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  center: [-80.25, 25.76], // Miami
+  zoom: 10
+});
+
+// Check if ZIP is covered and place marker
+function checkCoverage() {
+  const zip = document.getElementById("zipInput").value.trim();
+  const resultEl = document.getElementById("result");
+
+  if (currentMarker) currentMarker.remove();
+
+  if (serviceZips.includes(zip)) {
+    resultEl.innerHTML = `✅ Looks like we’ve got your area covered in ${zip}. Let’s get started! Pick a time below to claim your free consultation call.`;
+
+    fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zip}&country=USA&format=json`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) {
+          const { lat, lon } = data[0];
+          currentMarker = new maplibregl.Marker()
+            .setLngLat([parseFloat(lon), parseFloat(lat)])
+            .setPopup(new maplibregl.Popup().setText(`ZIP: ${zip}`))
+            .addTo(map)
+            .togglePopup();
+
+          map.flyTo({ center: [parseFloat(lon), parseFloat(lat)], zoom: 13 });
+        }
+      })
+      .catch(err => console.error("Error fetching ZIP coordinates:", zip, err));
+  } else {
+    resultEl.innerHTML = `❌ Sorry, we don’t cover ${zip} yet.`;
+  }
+}
+
+// Time and hours of operation logic
+
+function getEasternTime() {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+}
+
+function getNthWeekday(year, month, weekday, n) {
+  let date = new Date(year, month, 1), count = 0;
+  while (date.getMonth() === month) {
+    if (date.getDay() === weekday) {
+      count++;
+      if (count === n) return new Date(date);
+    }
+    date.setDate(date.getDate() + 1);
+  }
+  return null;
+}
+
+function getLastWeekday(year, month, weekday) {
+  let date = new Date(year, month + 1, 0);
+  while (date.getDay() !== weekday) {
+    date.setDate(date.getDate() - 1);
+  }
+  return date;
+}
+
+function applyObserved(date) {
+  const observed = new Date(date);
+  if (observed.getDay() === 6) observed.setDate(observed.getDate() - 1);
+  else if (observed.getDay() === 0) observed.setDate(observed.getDate() + 1);
+  return observed;
+}
+
+function getFederalHolidays(year) {
+  const holidays = [];
+
+  function addHoliday(date, name, allowObserved = true) {
+    holidays.push({ date: date.toDateString(), name });
+    if (allowObserved) {
+      const observed = applyObserved(date);
+      if (observed.toDateString() !== date.toDateString()) {
+        holidays.push({ date: observed.toDateString(), name: name + " (Observed)" });
+      }
+    }
+  }
+
+  addHoliday(new Date(year, 0, 1), "New Year's Day");
+  addHoliday(getNthWeekday(year, 0, 1, 3), "Martin Luther King Jr. Day", false);
+  addHoliday(getNthWeekday(year, 1, 1, 3), "Presidents Day", false);
+  addHoliday(getLastWeekday(year, 4, 1), "Memorial Day", false);
+  addHoliday(new Date(year, 5, 19), "Juneteenth National Independence Day");
+  addHoliday(new Date(year, 6, 4), "Independence Day");
+  addHoliday(getNthWeekday(year, 8, 1, 1), "Labor Day", false);
+  addHoliday(getNthWeekday(year, 9, 1, 2), "Columbus Day", false);
+  addHoliday(new Date(year, 10, 11), "Veterans Day");
+  addHoliday(getNthWeekday(year, 10, 4, 4), "Thanksgiving Day", false);
+  addHoliday(new Date(year, 11, 25), "Christmas Day");
+
+  return holidays;
+}
+
+const schedule = {
+  1: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Mon
+  2: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Tue
+  3: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Wed
+  4: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Thu
+  5: { openHour: 8, openMinute: 0, closeHour: 17, closeMinute: 0 }, // Fri
+  6: { openHour: 8, openMinute: 0, closeHour: 12, closeMinute: 0 }  // Sat
+};
+
+function formatTime(hour24, minute) {
+  const period = hour24 >= 12 ? "PM" : "AM";
+  const hour = hour24 % 12 || 12;
+  const paddedMin = minute.toString().padStart(2, "0");
+  return `${hour}:${paddedMin} ${period}`;
+}
+
+function getTodayStatus() {
+  const now = getEasternTime();
+  const day = now.getDay();
+  const year = now.getFullYear();
+  const holidays = getFederalHolidays(year);
+  const holiday = holidays.find(h => h.date === now.toDateString());
+
+  if (holiday) {
+    return `We are closed today for ${holiday.name}.`;
+  }
+
+  if (day === 0) {
+    // Sunday
+    const nextOpenDay = schedule[1]; // Next Monday
+    const nextOpenTime = formatTime(nextOpenDay.openHour, nextOpenDay.openMinute);
+    return `We are closed today (Sunday). We'll be back on Monday at ${nextOpenTime}.`;
+  }
+
+  const hours = schedule[day];
+  if (!hours) return `We are closed today.`;
+
+  const openTime = formatTime(hours.openHour, hours.openMinute);
+  const closeTime = formatTime(hours.closeHour, hours.closeMinute);
+
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const openMinutes = hours.openHour * 60 + hours.openMinute;
+  const closeMinutes = hours.closeHour * 60 + hours.closeMinute;
+
+  if (nowMinutes >= openMinutes && nowMinutes < closeMinutes) {
+    if (nowMinutes >= closeMinutes - 30) {
+      return `We're closing soon. We close at ${closeTime}.`;
+    }
+    return `We are open! We close at ${closeTime}.`;
+  } else {
+    // Business is closed
+    const nextOpenDay = schedule[day === 6 ? 1 : day + 1];
+    const nextOpenTime = formatTime(nextOpenDay.openHour, nextOpenDay.openMinute);
+    return `We are currently closed. We will reopen at ${nextOpenTime}.`;
+  }
+}
+
+function updateStatus() {
+  const status = getTodayStatus();
+  document.getElementById("status-message").innerText = status;
+}
+
+// Initial update and then every minute
+updateStatus();
+setInterval(updateStatus, 60000);
+
+// Attach ZIP coverage check button safely under CSP
+document.addEventListener("DOMContentLoaded", () => {
+  const zipButton = document.querySelector("button[onclick='checkCoverage()']");
+  if (zipButton) {
+    zipButton.removeAttribute("onclick"); // remove inline call
+    zipButton.addEventListener("click", checkCoverage); // rebind it safely
+  }
+});
