@@ -116,32 +116,28 @@ export default async (request, context) => {
 // Helper: Security headers + strict nonce CSP
 // ==========================
 async function addSecurityHeaders(response) {
-  // create nonces per-request
+  // Create nonces per-request
   const scriptNonce = makeNonce();
   const styleNonce = makeNonce();
 
-  // read the HTML (if any)
-  let html;
+  // Clone and read HTML content (if available)
+  let html = "";
   try {
     html = await response.clone().text();
   } catch {
-    html = "";
+    // Non-HTML response (skip nonce injection)
   }
 
-  // 1) Inject nonces into inline <script> and <style> tags that do NOT already have a nonce
-  //    - only targets true inline tags (no src for scripts)
+  // Inject nonces into inline <script> and <style> tags
   if (html) {
-    // inject nonce into inline <script> (skip scripts that have src or already have nonce)
     html = html.replace(
       /<script((?:(?!\b(src|nonce)\b)[\s\S])*?)>([\s\S]*?)<\/script>/gi,
       (m, attrPart, body) => {
-        // if tag contains src or nonce in attrPart, leave unchanged
         if (/\b(src|nonce)\b/i.test(attrPart)) return m;
         return `<script${attrPart} nonce="${scriptNonce}">${body}</script>`;
       }
     );
 
-    // inject nonce into <style> tags that don't already have a nonce
     html = html.replace(
       /<style((?:(?!\bnonce\b)[\s\S])*?)>([\s\S]*?)<\/style>/gi,
       (m, attrPart, body) => {
@@ -151,31 +147,26 @@ async function addSecurityHeaders(response) {
     );
   }
 
-  // 2) Extract static URLs from src/href/srcset to build a whitelist
+  // Extract src/href/srcset URLs to build whitelist
   const srcUrls = [];
   const urlRegex = /(?:src|href|srcset)=["']([^"']+)["']/gi;
   let match;
   while ((match = urlRegex.exec(html)) !== null) srcUrls.push(match[1]);
 
-  // 3) Predefined trusted origins (includes MapLibre/OpenStreetMap/CARTO, Crisp, TidyCal, recaptcha, weather APIs)
+  // Predefined trusted origins
   const predefined = [
     "'self'",
-    // common CDNs
     "https://cdnjs.cloudflare.com",
     "https://cdn.jsdelivr.net",
     "https://unpkg.com",
-    // analytics / tag manager
     "https://www.google-analytics.com",
     "https://www.googletagmanager.com",
-    // fonts
     "https://fonts.googleapis.com",
     "https://fonts.gstatic.com",
-    // Crisp / TidyCal
     "https://client.crisp.chat",
     "https://crisp.chat",
     "https://asset-tidycal.b-cdn.net",
     "https://tidycal.com",
-    // Map tile/style providers commonly used with MapLibre
     "https://basemaps.cartocdn.com",
     "https://api.maptiler.com",
     "https://api.mapbox.com",
@@ -183,38 +174,27 @@ async function addSecurityHeaders(response) {
     "https://carto.com",
     "https://*.tile.openstreetmap.org",
     "https://*.carto.com",
-    // other APIs observed in your logs
     "https://api.weather.gov",
     "https://api.sunrise-sunset.org",
-    // reCAPTCHA
     "https://www.google.com",
     "https://www.gstatic.com"
   ];
 
-  // 4) Merge origins found in HTML with predefined
   const origins = new Set(predefined);
   srcUrls.forEach(u => {
     try {
-      if (u.startsWith("http")) {
-        const parsed = new URL(u);
-        origins.add(parsed.origin);
-      }
-    } catch (e) { /* ignore bad urls */ }
+      if (u.startsWith("http")) origins.add(new URL(u).origin);
+    } catch {}
   });
 
-  // Debug log (Netlify function logs)
   console.log("===== CSP Origins =====");
   origins.forEach(o => console.log(o));
   console.log("=======================");
 
-  // 5) Build strict CSP using nonces (no 'unsafe-inline')
-  //    - script-src includes blob: because MapLibre and some libs may create blob workers
-  //    - style-src uses the style nonce; note: inline style attributes (style="") are not covered by nonce and will still be blocked
-  const originList = [...origins].join(" ");
+  // Build strict CSP
   const csp = [
     "default-src 'self';",
-    // --- Allow critical external resources ---
-    `script-src 'self' 'nonce-${scriptNonce}' https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://maps.geoapify.com https://carto.com https://api.maptiler.com https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com;`,
+    `script-src 'self' 'nonce-${scriptNonce}' blob: https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://maps.geoapify.com https://carto.com https://api.maptiler.com https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com;`,
     `style-src 'self' 'nonce-${styleNonce}' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://basemaps.cartocdn.com https://carto.com;`,
     `img-src 'self' data: blob: https://client.crisp.chat https://crisp.chat https://cdn.jsdelivr.net https://unpkg.com https://tidycal.com https://asset-tidycal.b-cdn.net https://carto.com https://basemaps.cartocdn.com https://*.tile.openstreetmap.org https://*.carto.com https://maps.geoapify.com https://api.maptiler.com;`,
     `connect-src 'self' https://client.crisp.chat https://crisp.chat https://tidycal.com https://asset-tidycal.b-cdn.net https://carto.com https://basemaps.cartocdn.com https://*.tile.openstreetmap.org https://maps.geoapify.com https://api.maptiler.com https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com;`,
@@ -227,14 +207,21 @@ async function addSecurityHeaders(response) {
     "upgrade-insecure-requests;",
   ].join(" ");
 
-  response.headers.set("Content-Security-Policy", csp);
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-XSS-Protection", "1; mode=block");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
-  response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  // Recreate a new response if HTML was modified
+  const securedResponse = html
+    ? new Response(html, response)
+    : new Response(await response.arrayBuffer(), response);
 
-  return { response, scriptNonce, styleNonce };
+  // Set headers
+  securedResponse.headers.set("Content-Security-Policy", csp);
+  securedResponse.headers.set("X-Content-Type-Options", "nosniff");
+  securedResponse.headers.set("X-Frame-Options", "DENY");
+  securedResponse.headers.set("X-XSS-Protection", "1; mode=block");
+  securedResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  securedResponse.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
+  securedResponse.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+  securedResponse.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  securedResponse.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+
+  return securedResponse;
+}
