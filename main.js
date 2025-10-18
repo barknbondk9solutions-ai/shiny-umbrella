@@ -2,21 +2,21 @@
 // Helper to dynamically load scripts
 // ======================
 function loadScript(url, async = true, callback) {
-  const script = document.createElement('script');
-  script.src = url;
-  script.async = async;
-  if (callback) script.onload = callback;
-  document.head.appendChild(script);
+  const script = document.createElement('script');
+  script.src = url;
+  script.async = async;
+  if (callback) script.onload = callback;
+  document.head.appendChild(script);
 }
 
 // ======================
 // Google Analytics
 // ======================
-loadScript("https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH", true, function() {
-  window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag('js', new Date());
-  gtag('config', 'G-6YDTVFLPLH');
+loadScript("https://www.googletagmanager.com/gtag/js?id=G-6YDTVFLPLH", true, function () {
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-6YDTVFLPLH');
 });
 
 // ======================
@@ -34,40 +34,40 @@ loadScript("https://asset-tidycal.b-cdn.net/js/embed.js");
 // ======================
 // MapLibre GL JS + dependent scripts
 // ======================
-loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function() {
-  
-  // Wait for DOM to ensure map container exists
-  document.addEventListener("DOMContentLoaded", function () {
-    // Initialize MapLibre map
-    if (document.getElementById('map')) {
-      const map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-        center: [-80.2995, 25.82],
-        zoom: 10
-      });
-    }
+loadScript("https://unpkg.com/maplibre-gl/dist/maplibre-gl.js", true, function () {
+  document.addEventListener("DOMContentLoaded", function () {
 
-    // Attach ZIP code check handler (CSP-compliant)
-    const zipBtn = document.getElementById('check-coverage');
-    if (zipBtn && typeof checkCoverage === 'function') {
-      zipBtn.addEventListener('click', checkCoverage);
-    }
-  });
+    // Initialize map if element exists
+    const mapContainer = document.getElementById('map');
+    if (mapContainer) {
+      const map = new maplibregl.Map({
+        container: 'map',
+        style: 'https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+        center: [-80.2995, 25.82],
+        zoom: 10
+      });
+    }
 
-  // Load your local scripts that might depend on MapLibre
-  loadScript('script.obf.js');
-  loadScript('ui-widgets.js');
-  loadScript('banner.obf.js');
-  loadScript('/recap-loader.js');
+    // Safely attach ZIP code check event
+    const zipBtn = document.getElementById('check-coverage');
+    if (zipBtn && typeof checkCoverage === 'function') {
+      zipBtn.addEventListener('click', checkCoverage);
+    }
+  });
+
+  // Load local dependent scripts
+  loadScript('script.obf.js');
+  loadScript('ui-widgets.js');
+  loadScript('banner.obf.js');
+  loadScript('/recap-loader.js');
 });
 
 // ======================
 // Current Year in Footer
 // ======================
 document.addEventListener("DOMContentLoaded", function () {
-  const yearElement = document.getElementById('current-year');
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear();
-  }
+  const yearElement = document.getElementById('current-year');
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
 });
