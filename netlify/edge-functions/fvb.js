@@ -182,18 +182,19 @@ async function addSecurityHeaders(response) {
 
   // Build CSP
   const csp = `
-    default-src ${[...origins].join(" ")};
-    script-src ${[...origins].join(" ")} 'nonce-${scriptNonce}';
-    style-src ${[...origins].join(" ")} 'nonce-${styleNonce}';
-    img-src ${[...origins].join(" ")} data:;
-    font-src ${[...origins].join(" ")};
-    connect-src ${[...origins].join(" ")};
-    frame-src ${[...origins].join(" ")};
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-  `.replace(/\s+/g, " ").trim();
+  default-src ${[...origins].join(" ")};
+  script-src ${[...origins].join(" ")} 'nonce-${scriptNonce}' blob: 'unsafe-inline';
+  style-src ${[...origins].join(" ")} 'nonce-${styleNonce}' 'unsafe-inline';
+  worker-src blob:;
+  img-src ${[...origins].join(" ")} data:;
+  font-src ${[...origins].join(" ")};
+  connect-src ${[...origins].join(" ")};
+  frame-src ${[...origins].join(" ")};
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+`.replace(/\s+/g, " ").trim();
 
   // Create new response
   response = new Response(html, response);
