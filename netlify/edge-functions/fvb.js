@@ -123,11 +123,11 @@ export default async (request, context) => {
 // Helper: Security headers + dynamic CSP + logging
 // ==========================
 async function addSecurityHeaders(response) {
-  // Generate nonces
+  // Generate nonces for inline scripts/styles
   const scriptNonce = randomBytes(16).toString("base64");
   const styleNonce = randomBytes(16).toString("base64");
 
-  // Read HTML
+  // Read HTML body
   let html;
   try {
     html = await response.clone().text();
@@ -145,7 +145,7 @@ async function addSecurityHeaders(response) {
     `<style$1 nonce="${styleNonce}">`
   );
 
-  // Extract all URLs from static HTML
+  // Extract all URLs from src/href/srcset
   const srcUrls = [];
   const urlRegex = /(?:src|href|srcset)=["']([^"']+)["']/gi;
   let match;
@@ -155,18 +155,21 @@ async function addSecurityHeaders(response) {
 
   // Predefined whitelist for known dynamic services
   const predefined = [
+    "'self'",
     "https://cdnjs.cloudflare.com",
     "https://fonts.googleapis.com",
     "https://cdn.jsdelivr.net",
     "https://www.google-analytics.com",
     "https://www.googletagmanager.com",
     "https://cdn.onesignal.com",
-    "'self'",
-     "*",
-
+    "https://client.crisp.chat",
+    "https://asset-tidycal.b-cdn.net",
+    "https://unpkg.com",
+    "https://*.tile.openstreetmap.org",
+    "https://*.carto.com"
   ];
 
-  // Collect unique origins
+  // Collect unique origins from HTML
   const origins = new Set(predefined);
   srcUrls.forEach(url => {
     try {
@@ -175,31 +178,31 @@ async function addSecurityHeaders(response) {
     } catch {}
   });
 
-  // Log whitelist
+  // Log whitelist (optional)
   console.log("===== CSP Whitelisted Origins =====");
   origins.forEach(origin => console.log(origin));
   console.log("===================================");
 
-  // Build CSP
+  // Build dynamic CSP
   const csp = `
-  default-src ${[...origins].join(" ")};
-  script-src ${[...origins].join(" ")} 'nonce-${scriptNonce}' blob: 'unsafe-inline';
-  style-src ${[...origins].join(" ")} 'nonce-${styleNonce}' 'unsafe-inline';
-  worker-src blob:;
-  img-src ${[...origins].join(" ")} data:;
-  font-src ${[...origins].join(" ")};
-  connect-src ${[...origins].join(" ")};
-  frame-src ${[...origins].join(" ")};
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self';
-  frame-ancestors 'none';
-`.replace(/\s+/g, " ").trim();
+    default-src 'self';
+    script-src ${[...origins].join(" ")} 'nonce-${scriptNonce}' blob:;
+    style-src ${[...origins].join(" ")} 'nonce-${styleNonce}';
+    worker-src blob:;
+    img-src ${[...origins].join(" ")} data:;
+    font-src ${[...origins].join(" ")};
+    connect-src ${[...origins].join(" ")};
+    frame-src ${[...origins].join(" ")};
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+  `.replace(/\s+/g, " ").trim();
 
-  // Create new response
+  // Create new response with modified HTML
   response = new Response(html, response);
 
-  // Set headers
+  // Set security headers
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -212,3 +215,5 @@ async function addSecurityHeaders(response) {
 
   return response;
 }
+
+export default addSecurityHeaders;
