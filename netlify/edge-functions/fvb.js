@@ -180,7 +180,7 @@ async function addSecurityHeaders(response) {
   response.headers.set("X-Robots-Tag", "index, follow");
 
   // ==========================
-  // Content-Security-Policy (Netlify-friendly)
+  // Content-Security-Policy (allow async + defer)
   // ==========================
   response.headers.set(
     "Content-Security-Policy",
