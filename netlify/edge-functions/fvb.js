@@ -182,23 +182,23 @@ const CONNECT_WHITELIST = [
   ];
 
   // Construct CSP
-  const csp = [
-    "default-src 'self';",
-    `script-src ${SCRIPT_WHITELIST.join(" ")};`,
-    `script-src-elem ${SCRIPT_WHITELIST.join(" ")};`,
-    "worker-src 'self' blob:;",
-    `style-src ${STYLE_WHITELIST.join(" ")};`,
-    `style-src-elem ${STYLE_WHITELIST.join(" ")};`,
-    "img-src 'self' data: https://assets.zyrosite.com https://client.crisp.chat;",
-    `connect-src ${CONNECT_WHITELIST.join(" ")};`,
-    `frame-src ${FRAME_WHITELIST.join(" ")};`,
-    `font-src ${FONT_WHITELIST.join(" ")};`,
-    "object-src 'none';",
-    "base-uri 'self';",
-    "form-action 'self';",
-    "frame-ancestors 'self';",
-    "upgrade-insecure-requests;"
-  ].join(" ");
+const csp = [
+  "default-src 'self';",
+  `script-src ${SCRIPT_WHITELIST.join(" ")};`,
+  `script-src-elem ${SCRIPT_WHITELIST.join(" ")};`,
+  "worker-src 'self' blob:;",
+  `style-src ${STYLE_WHITELIST.join(" ")};`,
+  `style-src-elem ${STYLE_WHITELIST.join(" ")};`,
+  "img-src 'self' data: https://assets.zyrosite.com https://client.crisp.chat https://image.crisp.chat;",
+  `connect-src ${CONNECT_WHITELIST.join(" ")};`,
+  `frame-src ${FRAME_WHITELIST.join(" ")};`,
+  `font-src ${FONT_WHITELIST.join(" ")};`,
+  "object-src 'none';",
+  "base-uri 'self';",
+  "form-action 'self';",
+  "frame-ancestors 'self';",
+  "upgrade-insecure-requests;"
+].join(" ");
 
   response.headers.set("Content-Security-Policy", csp);
   return response;
